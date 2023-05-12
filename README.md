@@ -1,6 +1,6 @@
 # Ecoroutes
 
-CEO: Munir
-CTO: JJ
-Head Software Engineers: Travis & Shaoyu
-Janitor: Alan
+CEO: Munir\n
+CTO: JJ\n
+Head Software Engineers: Travis & Shaoyu\n
+Janitor: Alan\n
