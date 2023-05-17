@@ -4,7 +4,7 @@ from geopy.distance import geodesic
 import matplotlib.pyplot as plt
 
 # Load the MRT station data
-df = pd.read_csv('MRTs\MRT Stations.csv')
+df = pd.read_csv('MRT Stations.csv')
 
 # Create an empty graph
 G = nx.Graph()
