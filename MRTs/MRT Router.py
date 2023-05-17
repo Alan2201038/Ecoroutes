@@ -4,7 +4,7 @@ from geopy.distance import geodesic
 import matplotlib.pyplot as plt
 
 # Load the MRT station data
-df = pd.read_csv('MRT Stations.csv')
+df = pd.read_csv('MRTs\MRT Stations.csv')
 
 # Create an empty graph
 G = nx.Graph()
@@ -149,7 +149,7 @@ pos = nx.get_node_attributes(G, 'pos')
 pos = {node: (long, -lat) for node, (lat, long) in pos.items()}
 
 # Draw the graph, with nodes labeled by their names
-nx.draw(G, pos, with_labels=True, node_size=20, font_size=6)
+nx.draw_networkx(G, pos, with_labels=True, node_size=20, font_size=6)
 
 # Flip the y-axis
 plt.gca().invert_yaxis()
