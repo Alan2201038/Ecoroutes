@@ -33,11 +33,3 @@ for node in shortest_path:
 # Print the coordinates
 print("Coordinates:", coordinates)
 
-
-# Create a geocoder instance
-
-
-# Specify the latitude and longitude coordinates
-latitude, longitude = 1.4303601, 103.8352969
-
-# Reverse geocode the coordinates to obtain the location name
