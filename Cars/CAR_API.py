@@ -35,6 +35,7 @@ for element in data["elements"]:
         for i in range(len(node_ids) - 1):
             node1 = node_ids[i]
             node2 = node_ids[i + 1]
+
             graph.add_edge(node1, node2)
 
 print("Number of nodes:", len(graph.nodes))
