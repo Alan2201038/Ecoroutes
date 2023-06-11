@@ -4,7 +4,8 @@ from geopy.geocoders import Nominatim
 
 place_name = "Singapore"
 graph = ox.graph_from_place(place_name, network_type="drive")
-
+print("Number of nodes:", len(graph.nodes))
+print("Number of edges:", len(graph.edges))
 
 target_location = (1.4295, 103.835)
 target_locationB = (1.4173, 103.8330)
@@ -33,3 +34,15 @@ for node in shortest_path:
 # Print the coordinates
 print("Coordinates:", coordinates)
 
+# Plot the graph with the shortest path highlighted
+fig, ax = ox.plot_graph_route(graph, shortest_path, route_linewidth=6, node_size=0, bgcolor='w')
+
+# Customize the plot
+ax.scatter(target_location[1], target_location[0], c='r', edgecolor='k', s=100, label='Source')
+ax.scatter(target_locationB[1], target_locationB[0], c='g', edgecolor='k', s=100, label='Target')
+
+# Add a legend
+ax.legend()
+
+# Show the plot
+ox.plot.show(fig)
