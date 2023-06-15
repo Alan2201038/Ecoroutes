@@ -1,7 +1,7 @@
 import osmnx as ox
 import networkx as nx
 from geopy.geocoders import Nominatim
-from GraphFindingAlgos import Dijkstra
+from GraphFindingAlgos import Dijkstra_Router
 
 place_name = "Singapore"
 graph = ox.graph_from_place(place_name, network_type="drive")
@@ -9,23 +9,22 @@ print("Number of nodes:", len(graph.nodes))
 print("Number of edges:", len(graph.edges))
 
 
-target_location = (1.4295, 103.835)
-target_locationB = (1.4173, 103.8330)
+source = (1.4295, 103.835)
+destination = (1.4173, 103.8330)
 
 # Specify the source and target nodes
-node_source = ox.distance.nearest_nodes(graph, target_location[1], target_location[0])
-node_target = ox.distance.nearest_nodes(graph, target_locationB[1], target_locationB[0])
+node_source = ox.distance.nearest_nodes(graph, source[1], source[0])
+node_target = ox.distance.nearest_nodes(graph, destination[1], destination[0])
 print(node_target)
 print(node_source)
 
 # Find the shortest path between the source and target nodes
-#TO DO: REPLACE WITH OWN DIJSTRKA ALGORITHM
-shortest_path_correct = nx.shortest_path(graph, node_source, node_target, weight='length')
-shortest_path=Dijkstra.dijkstra(graph,node_source,node_target)
+
+#shortest_path_correct = nx.shortest_path(graph, node_source, node_target, weight='length') Library function (Remove)
+shortest_path=Dijkstra_Router.dijkstra(graph,node_source,node_target)
 
 # Print the shortest path
 print("Shortest path:", shortest_path)
-print("Library shortest path:",shortest_path_correct)
 geolocator = Nominatim(user_agent="ecoroutes_test")
 coordinates = []
 for node in shortest_path[0]:
@@ -44,8 +43,8 @@ print("Coordinates:", coordinates)
 fig, ax = ox.plot_graph_route(graph, shortest_path[0], route_linewidth=6, node_size=0, bgcolor='w')
 
 # Customize the plot
-ax.scatter(target_location[1], target_location[0], c='r', edgecolor='k', s=100, label='Source')
-ax.scatter(target_locationB[1], target_locationB[0], c='g', edgecolor='k', s=100, label='Target')
+ax.scatter(source[1], source[0], c='r', edgecolor='k', s=100, label='Source')
+ax.scatter(destination[1], destination[0], c='g', edgecolor='k', s=100, label='Target')
 
 # Add a legend
 ax.legend()

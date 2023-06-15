@@ -31,8 +31,11 @@ def dijkstra (graph,start,end):
 
     neighbors = graph.neighbors(current_node)
     for neighbor in neighbors:
-      edge_data = graph.get_edge_data(current_node, neighbor)
-      edge_weight = edge_data[0]['length']  # Change 'length' to the appropriate weight attribute
+      edge_data = graph.get_edge_data(current_node, neighbor)  # Get the edge data between current_node and neighbor
+      if not edge_data:
+        continue
+
+      edge_weight = edge_data.get('weight', float('inf'))  # Use a default weight if 'length' attribute is missing
       distance = distance_dict[current_node] + edge_weight
       if distance < distance_dict[neighbor]:
         distance_dict[neighbor] = distance
@@ -47,4 +50,4 @@ def dijkstra (graph,start,end):
     current_node = prev_dict[current_node]
 
   path.reverse()
-  return (path,distance_dict[end])
+  return (path,round(distance_dict[end],5))
