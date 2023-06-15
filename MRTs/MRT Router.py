@@ -2,72 +2,83 @@ import pandas as pd
 import networkx as nx
 from geopy.distance import geodesic
 import matplotlib.pyplot as plt
+import pickle
+import os
 
-# Load the MRT station data
-df = pd.read_csv('MRT Stations.csv')
+MRT_Pickle="MRT_Pickle_Graph"
 
-# Create an empty graph
-G = nx.Graph()
+if os.path.exists(MRT_Pickle):
+    with open(MRT_Pickle, "rb") as f:
+        G = pickle.load(f)
+else:
+    # Load the MRT station data
+    df = pd.read_csv('MRT Stations.csv')
+
+    # Create an empty graph
+    G = nx.Graph()
 
 # Helper function to split station number into prefix and numeric part
-def split_stn_no(stn_no):
-    prefix = ''.join(filter(str.isalpha, stn_no))
-    num = ''.join(filter(str.isdigit, stn_no))
-    return prefix, int(num) if num.isdigit() else None
+    def split_stn_no(stn_no):
+        prefix = ''.join(filter(str.isalpha, stn_no))
+        num = ''.join(filter(str.isdigit, stn_no))
+        return prefix, int(num) if num.isdigit() else None
 
-# Add a node for each station
-for index, row in df.iterrows():
-    G.add_node(row['STN_NAME'], pos=(row['Latitude'], row['Longitude']))
+    # Add a node for each station
+    for index, row in df.iterrows():
+        G.add_node(row['STN_NAME'], pos=(row['Latitude'], row['Longitude']))
 
-# Create a dictionary to store connections
-connections = {}
+    # Create a dictionary to store connections
+    connections = {}
 
-# Add connections for each station
-for index, row in df.iterrows():
-    stn_nos = row['STN_NO'].split('/')
-    for stn_no in stn_nos:
-        prefix, num = split_stn_no(stn_no)
-        if prefix not in connections:
-            connections[prefix] = []
-        connections[prefix].append((num, row['STN_NAME']))
+    # Add connections for each station
+    for index, row in df.iterrows():
+        stn_nos = row['STN_NO'].split('/')
+        for stn_no in stn_nos:
+            prefix, num = split_stn_no(stn_no)
+            if prefix not in connections:
+                connections[prefix] = []
+            connections[prefix].append((num, row['STN_NAME']))
 
-# Special cases for Punggol and Sengkang
-connections['PTC'] = [(1, 'PUNGGOL MRT STATION'), (7, 'PUNGGOL MRT STATION')]
-connections['STC'] = [(1, 'SENGKANG MRT STATION'), (5, 'SENGKANG MRT STATION')]
+    # Special cases for Punggol and Sengkang
+    connections['PTC'] = [(1, 'PUNGGOL MRT STATION'), (7, 'PUNGGOL MRT STATION')]
+    connections['STC'] = [(1, 'SENGKANG MRT STATION'), (5, 'SENGKANG MRT STATION')]
 
-# Add edges for each pair of stations on the same line with consecutive numbers
-for prefix, stns in connections.items():
-    stns.sort()
-    for i in range(len(stns) - 1):
-        num1, node1 = stns[i]
-        num2, node2 = stns[i+1]
-        if abs(num1 - num2) == 1:
-            G.add_edge(node1, node2, weight=geodesic(G.nodes[node1]['pos'], G.nodes[node2]['pos']).m)
+    # Add edges for each pair of stations on the same line with consecutive numbers
+    for prefix, stns in connections.items():
+        stns.sort()
+        for i in range(len(stns) - 1):
+            num1, node1 = stns[i]
+            num2, node2 = stns[i+1]
+            if abs(num1 - num2) == 1:
+                G.add_edge(node1, node2, weight=geodesic(G.nodes[node1]['pos'], G.nodes[node2]['pos']).m)
 
 # Manually add edges for Punggol and Sengkang to their connected LRT stations
-G.add_edge('PUNGGOL MRT STATION', 'SAM KEE LRT STATION', weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['SAM KEE LRT STATION']['pos']).m)
-G.add_edge('PUNGGOL MRT STATION', 'SOO TECK LRT STATION', weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['SOO TECK LRT STATION']['pos']).m)
-G.add_edge('PUNGGOL MRT STATION', 'COVE LRT STATION', weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['COVE LRT STATION']['pos']).m)
-G.add_edge('PUNGGOL MRT STATION', 'DAMAI LRT STATION', weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['DAMAI LRT STATION']['pos']).m)
-G.add_edge('SENGKANG MRT STATION', 'CHENG LIM LRT STATION', weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['CHENG LIM LRT STATION']['pos']).m)
-G.add_edge('SENGKANG MRT STATION', 'RENJONG LRT STATION', weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['RENJONG LRT STATION']['pos']).m)
-G.add_edge('SENGKANG MRT STATION', 'COMPASSVALE LRT STATION', weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['COMPASSVALE LRT STATION']['pos']).m)
-G.add_edge('SENGKANG MRT STATION', 'RANGGUNG LRT STATION', weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['RANGGUNG LRT STATION']['pos']).m)
+    G.add_edge('PUNGGOL MRT STATION', 'SAM KEE LRT STATION', weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['SAM KEE LRT STATION']['pos']).m)
+    G.add_edge('PUNGGOL MRT STATION', 'SOO TECK LRT STATION', weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['SOO TECK LRT STATION']['pos']).m)
+    G.add_edge('PUNGGOL MRT STATION', 'COVE LRT STATION', weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['COVE LRT STATION']['pos']).m)
+    G.add_edge('PUNGGOL MRT STATION', 'DAMAI LRT STATION', weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['DAMAI LRT STATION']['pos']).m)
+    G.add_edge('SENGKANG MRT STATION', 'CHENG LIM LRT STATION', weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['CHENG LIM LRT STATION']['pos']).m)
+    G.add_edge('SENGKANG MRT STATION', 'RENJONG LRT STATION', weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['RENJONG LRT STATION']['pos']).m)
+    G.add_edge('SENGKANG MRT STATION', 'COMPASSVALE LRT STATION', weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['COMPASSVALE LRT STATION']['pos']).m)
+    G.add_edge('SENGKANG MRT STATION', 'RANGGUNG LRT STATION', weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['RANGGUNG LRT STATION']['pos']).m)
 
-# Manually add edges for Yew Tee and Kranji
-G.add_edge('YEW TEE MRT STATION', 'KRANJI MRT STATION', weight=geodesic(G.nodes['YEW TEE MRT STATION']['pos'], G.nodes['KRANJI MRT STATION']['pos']).m)
+    # Manually add edges for Yew Tee and Kranji
+    G.add_edge('YEW TEE MRT STATION', 'KRANJI MRT STATION', weight=geodesic(G.nodes['YEW TEE MRT STATION']['pos'], G.nodes['KRANJI MRT STATION']['pos']).m)
 
-# Manually add edges for Caldecott and Botanic Gardens
-G.add_edge('CALDECOTT MRT STATION', 'BOTANIC GARDENS MRT STATION', weight=geodesic(G.nodes['CALDECOTT MRT STATION']['pos'], G.nodes['BOTANIC GARDENS MRT STATION']['pos']).m)
+    # Manually add edges for Caldecott and Botanic Gardens
+    G.add_edge('CALDECOTT MRT STATION', 'BOTANIC GARDENS MRT STATION', weight=geodesic(G.nodes['CALDECOTT MRT STATION']['pos'], G.nodes['BOTANIC GARDENS MRT STATION']['pos']).m)
 
-# Manually add edges for Caldecott and Stevens
-G.add_edge('CALDECOTT MRT STATION', 'STEVENS MRT STATION', weight=geodesic(G.nodes['CALDECOTT MRT STATION']['pos'], G.nodes['STEVENS MRT STATION']['pos']).m)
+    # Manually add edges for Caldecott and Stevens
+    G.add_edge('CALDECOTT MRT STATION', 'STEVENS MRT STATION', weight=geodesic(G.nodes['CALDECOTT MRT STATION']['pos'], G.nodes['STEVENS MRT STATION']['pos']).m)
 
-# Manually add edges for Marina Bay and Gardens By The Bay
-G.add_edge('MARINA BAY MRT STATION', 'GARDENS BY THE BAY MRT STATION', weight=geodesic(G.nodes['MARINA BAY MRT STATION']['pos'], G.nodes['GARDENS BY THE BAY MRT STATION']['pos']).m)
+    # Manually add edges for Marina Bay and Gardens By The Bay
+    G.add_edge('MARINA BAY MRT STATION', 'GARDENS BY THE BAY MRT STATION', weight=geodesic(G.nodes['MARINA BAY MRT STATION']['pos'], G.nodes['GARDENS BY THE BAY MRT STATION']['pos']).m)
 
-# Manually add edges for Bukit Panjang and Senja
-G.add_edge('BUKIT PANJANG MRT STATION', 'SENJA LRT STATION', weight=geodesic(G.nodes['BUKIT PANJANG MRT STATION']['pos'], G.nodes['SENJA LRT STATION']['pos']).m)
+    # Manually add edges for Bukit Panjang and Senja
+    G.add_edge('BUKIT PANJANG MRT STATION', 'SENJA LRT STATION', weight=geodesic(G.nodes['BUKIT PANJANG MRT STATION']['pos'], G.nodes['SENJA LRT STATION']['pos']).m)
+
+    with open(MRT_Pickle, "wb") as f:
+        pickle.dump(G, f)
 
 def dist(a, b):
     (x1, y1) = G.nodes[a]['pos']
