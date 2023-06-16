@@ -6,6 +6,7 @@ import networkx as nx
 from geopy.geocoders import Nominatim
 from GraphFindingAlgos import AStar,Dijkstra
 import math
+import folium
 
 def haversine(lon1, lat1, lon2, lat2):
     """
@@ -73,7 +74,7 @@ print("Number of nodes:", len(graph.nodes))
 print("Number of edges:", len(graph.edges))
 
 #Long,Lat
-source = (103.835,1.4295)
+source = (103.785,1.4356)
 destination = (103.8330,1.4173)
 
 source_node = None
@@ -110,3 +111,5 @@ for n in shortest_path[0]:
 #
 # # Show the plot
 # plt.show()
+
+#TODO:Draw out route taken from shortest_path onto Map
