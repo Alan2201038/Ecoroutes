@@ -1,4 +1,4 @@
-"""Each node is a tuple (NodeID,Weight,Heuristic) Example: (A,15,10) Second element would be the numerical value associated"""
+"""Each node is a tuple (NodeID,Weight) Example: (A,15) Second element would be the numerical value associated"""
 import math
 class MinHeap:
     """A min-heap is a tree structure where
@@ -49,7 +49,7 @@ class MinHeap:
         right = self.right_child(i)
         smallest = i
 
-        if left < len(self.heap) and self.heap[left][1] < self.heap[smallest][1] :
+        if left < len(self.heap) and self.heap[left][1]  < self.heap[smallest][1] :
             smallest = left
 
         if right < len(self.heap) and self.heap[right][1]< self.heap[smallest][1] :

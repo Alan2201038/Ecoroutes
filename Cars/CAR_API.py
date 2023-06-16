@@ -4,10 +4,10 @@ import requests
 import matplotlib.pyplot as plt
 import networkx as nx
 from geopy.geocoders import Nominatim
-from GraphFindingAlgos import Dijkstra
+from GraphFindingAlgos import AStar,Dijkstra
 import math
 
-def haversine(lat1, lon1, lat2, lon2):
+def haversine(lon1, lat1, lon2, lat2):
     """
     Calculate the distance between two points on Earth using the Haversine formula.
     """
@@ -72,18 +72,20 @@ else:
 print("Number of nodes:", len(graph.nodes))
 print("Number of edges:", len(graph.edges))
 
-
-source = (1.4295, 103.835)
-destination = (1.4173, 103.8330)
+#Long,Lat
+source = (103.835,1.4295)
+destination = (103.8330,1.4173)
 
 source_node = None
 destination_node = None
 
 for node_id, attributes in graph.nodes(data=True):
     lon, lat = attributes["pos"]
-    if haversine(lon, lat, source[1], source[0]) <= 0.008:
+    temp1=haversine(lon, lat, source[0], source[1])
+    temp2=haversine(lon, lat, destination[0], destination[1])
+    if  temp1<= 0.015:
         source_node=node_id
-    if haversine(lon, lat, destination[1], destination[0]) <= 0.008:
+    if  temp2<= 0.015:
         destination_node=node_id
 shortest_path=Dijkstra.dijkstra(graph,source_node,destination_node)
 print("Shortest path:", shortest_path)
