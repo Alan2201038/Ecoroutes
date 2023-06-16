@@ -87,12 +87,13 @@ for node_id, attributes in graph.nodes(data=True):
         source_node=node_id
     if  temp2<= 0.015:
         destination_node=node_id
-shortest_path=Dijkstra.dijkstra(graph,source_node,destination_node)
+shortest_path=AStar.AStar(graph,source_node,destination_node,destination[0],destination[1])
+#shortest_path=Dijkstra.dijkstra(graph,source_node,destination_node)
 print("Shortest path:", shortest_path)
 geolocator = Nominatim(user_agent="ecoroutes_test")
 for n in shortest_path[0]:
     node_data = graph.nodes[n]["pos"]
-    latitude, longitude = node_data[1], node_data[0]
+    longitude,latitude = node_data[0], node_data[1]
     location = geolocator.reverse((latitude, longitude), exactly_one=True)
     print("Location name:", location.address)
 

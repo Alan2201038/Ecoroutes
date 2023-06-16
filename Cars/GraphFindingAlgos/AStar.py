@@ -3,15 +3,22 @@ import math
 
 from Cars.GraphFindingAlgos import minheap
 
-def heuristic(lat1,lon1,lat2,lon2):
-  #Uses Euclidean distance as the heuristic
-  lat1 = math.radians(lat1)
-  lon1 = math.radians(lon1)
-  lat2 = math.radians(lat2)
-  lon2 = math.radians(lon2)
 
-  d = math.sqrt((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2)
-  return d
+def heuristic(lon1, lat1, lon2, lat2):
+  # Radius of the Earth in kilometers
+  radius = 6371
+
+  # Convert coordinates from degrees to radians
+  lon1, lat1, lon2, lat2 = map(math.radians, [lon1, lat1, lon2, lat2])
+
+  # Haversine formula
+  dlon = lon2 - lon1
+  dlat = lat2 - lat1
+  a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+  c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+  distance = radius * c
+
+  return distance
 
 def AStar(graph,start,end,end_lon,end_lat):
 
@@ -24,7 +31,7 @@ def AStar(graph,start,end,end_lon,end_lat):
     if node == start:
       distance_dict[node] = (0,0)
     else:
-      distance_dict[node] = float('inf')
+      distance_dict[node] = (float('inf'),float('inf'))
 
 
   heap.insert((start, 0,0))
@@ -41,13 +48,18 @@ def AStar(graph,start,end,end_lon,end_lat):
     neighbors = graph.neighbors(current_node)
     for neighbor in neighbors:
       edge_data = graph.get_edge_data(current_node, neighbor)  # Get the edge data between current_node and neighbor
-
       edge_weight = edge_data.get('weight', float('inf'))
-      distance = distance_dict[current_node] + edge_weight
-      if distance < distance_dict[neighbor]:
-        distance_dict[neighbor] = distance
+
+      #Additional computation of heuristic(Euclidean dist between neighbour node and distance between end node)
+      node_data = graph.nodes[neighbor]["pos"]
+      longitude, latitude = node_data[0], node_data[1]
+      heu=heuristic(longitude,latitude,end_lon,end_lat)
+
+      total_distance = distance_dict[current_node][0] + edge_weight+heu
+      if total_distance < distance_dict[neighbor][0]:
+        distance_dict[neighbor] = (total_distance,heu)
         prev_dict[neighbor] = current_node
-        heap.insert((neighbor, distance))
+        heap.insert((neighbor, total_distance,heu))
 
   path = []
   current_node = end
@@ -57,4 +69,4 @@ def AStar(graph,start,end,end_lon,end_lat):
     current_node = prev_dict[current_node]
 
   path.reverse()
-  return (path,round(distance_dict[end],5))
+  return (path,round(distance_dict[end][0],5))
