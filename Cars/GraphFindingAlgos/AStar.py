@@ -20,7 +20,7 @@ def heuristic(lon1, lat1, lon2, lat2):
 
   return distance
 
-def AStar(graph,start,end,end_lon,end_lat):
+def AStar(graph,start,end,end_lon,end_lat,MRT=None):
 
   heap = minheap.MinHeap()
   visited = set()
@@ -52,14 +52,19 @@ def AStar(graph,start,end,end_lon,end_lat):
 
       #Additional computation of heuristic(Euclidean dist between neighbour node and distance between end node)
       node_data = graph.nodes[neighbor]["pos"]
-      longitude, latitude = node_data[0], node_data[1]
-      heu=heuristic(longitude,latitude,end_lon,end_lat)
+      if MRT:
+        #If called by MRT Router, stored in different indexes
+        longitude, latitude = node_data[1], node_data[0]
+      else:
+        longitude, latitude = node_data[0], node_data[1]
 
-      total_distance = distance_dict[current_node][0] + edge_weight+heu
+      heu = heuristic(longitude, latitude, end_lon, end_lat)
+      total_distance = distance_dict[current_node][0] + edge_weight + heu
+
       if total_distance < distance_dict[neighbor][0]:
-        distance_dict[neighbor] = (total_distance,heu)
+        distance_dict[neighbor] = (total_distance-heu, heu)
         prev_dict[neighbor] = current_node
-        heap.insert((neighbor, total_distance,heu))
+        heap.insert((neighbor, total_distance, heu))
 
   path = []
   current_node = end

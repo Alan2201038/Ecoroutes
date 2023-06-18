@@ -74,7 +74,7 @@ print("Number of nodes:", len(graph.nodes))
 print("Number of edges:", len(graph.edges))
 
 #Long,Lat
-source = (103.785,1.4356)
+source = (103.835239,1.429464)
 destination = (103.8330,1.4173)
 
 source_node = None

@@ -4,6 +4,7 @@ from geopy.distance import geodesic
 import matplotlib.pyplot as plt
 import pickle
 import os
+import Cars.GraphFindingAlgos.AStar
 
 MRT_Pickle="MRT_Pickle_Graph"
 
@@ -128,8 +129,8 @@ def astar(start, goal):
                 open_set.add(neighbor)
 
     return None, float('inf')
-
-path, total_distance = astar('JURONG EAST MRT STATION', 'LENTOR MRT STATION')
+path,total_distance = Cars.GraphFindingAlgos.AStar.AStar(G,'JURONG EAST MRT STATION', 'CLEMENTI MRT STATION',103.8368,1.3846,MRT=1)
+#path, total_distance = astar('JURONG EAST MRT STATION', 'LENTOR MRT STATION')
 print(" -> ".join(path))
 
 print(f"Total distance: {total_distance/1000} km") #not accurate cause this is straight line distance from one node to the next
