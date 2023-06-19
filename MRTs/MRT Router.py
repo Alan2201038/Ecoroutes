@@ -11,6 +11,7 @@ MRT_Pickle="MRT_Pickle_Graph"
 if os.path.exists(MRT_Pickle):
     with open(MRT_Pickle, "rb") as f:
         G = pickle.load(f)
+        print("True")
 else:
     # Load the MRT station data
     df = pd.read_csv('MRT Stations.csv')
@@ -129,8 +130,9 @@ def astar(start, goal):
                 open_set.add(neighbor)
 
     return None, float('inf')
-path,total_distance = Cars.GraphFindingAlgos.AStar.AStar(G,'JURONG EAST MRT STATION', 'CLEMENTI MRT STATION',103.8368,1.3846,MRT=1)
-#path, total_distance = astar('JURONG EAST MRT STATION', 'LENTOR MRT STATION')
+path,total_distance = Cars.GraphFindingAlgos.AStar.AStar(G,'WOODLANDS MRT STATION', 'BUGIS MRT STATION',103.8368,1.3846,MRT=1)
+
+#path, total_distance = astar('WOODLANDS MRT STATION', 'BUGIS MRT STATION')
 print(" -> ".join(path))
 
 print(f"Total distance: {total_distance/1000} km") #not accurate cause this is straight line distance from one node to the next
