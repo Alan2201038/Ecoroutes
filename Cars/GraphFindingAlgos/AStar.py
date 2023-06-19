@@ -5,13 +5,9 @@ from Cars.GraphFindingAlgos import minheap
 
 
 def heuristic(lon1, lat1, lon2, lat2):
-  # Radius of the Earth in kilometers
+  #Haversine used as the heuristic
   radius = 6371
-
-  # Convert coordinates from degrees to radians
   lon1, lat1, lon2, lat2 = map(math.radians, [lon1, lat1, lon2, lat2])
-
-  # Haversine formula
   dlon = lon2 - lon1
   dlat = lat2 - lat1
   a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
@@ -24,7 +20,7 @@ def AStar(graph,start,end,end_lon,end_lat,MRT=None):
 
   heap = minheap.MinHeap()
   visited = set()
-  distance_dict={}#Keeps track of the current shortest distance of all vertices from the start node and estimated dist to end node
+  distance_dict={}#Keeps track of the shortest path of vertex from the start node and heuristic cost
   prev_dict={}#Keeps track of the shortest previous node
   prev_dict[start]=None
   for node in graph.nodes:
