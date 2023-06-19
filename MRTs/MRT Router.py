@@ -4,12 +4,12 @@ from geopy.distance import geodesic
 import matplotlib.pyplot as plt
 import pickle
 import os
-import Cars.GraphFindingAlgos.AStar
+import GraphFindingAlgos.AStar
 
-MRT_Pickle="MRT_Pickle_Graph"
+mrtGraph= "MRT_Pickle_Graph"
 
-if os.path.exists(MRT_Pickle):
-    with open(MRT_Pickle, "rb") as f:
+if os.path.exists(mrtGraph):
+    with open(mrtGraph, "rb") as f:
         G = pickle.load(f)
         print("True")
 else:
@@ -79,9 +79,10 @@ else:
     # Manually add edges for Bukit Panjang and Senja
     G.add_edge('BUKIT PANJANG MRT STATION', 'SENJA LRT STATION', weight=geodesic(G.nodes['BUKIT PANJANG MRT STATION']['pos'], G.nodes['SENJA LRT STATION']['pos']).m)
 
-    with open(MRT_Pickle, "wb") as f:
+    with open(mrtGraph, "wb") as f:
         pickle.dump(G, f)
 
+print(len(G.nodes))
 def dist(a, b):
     (x1, y1) = G.nodes[a]['pos']
     (x2, y2) = G.nodes[b]['pos']
@@ -130,7 +131,7 @@ def astar(start, goal):
                 open_set.add(neighbor)
 
     return None, float('inf')
-path,total_distance = Cars.GraphFindingAlgos.AStar.AStar(G,'WOODLANDS MRT STATION', 'BUGIS MRT STATION',103.8368,1.3846,MRT=1)
+path,total_distance = GraphFindingAlgos.AStar.AStar(G, 'YISHUN MRT STATION', 'KHATIB MRT STATION', 103.8368, 1.3846)
 
 #path, total_distance = astar('WOODLANDS MRT STATION', 'BUGIS MRT STATION')
 print(" -> ".join(path))

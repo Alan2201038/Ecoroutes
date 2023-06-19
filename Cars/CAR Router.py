@@ -1,5 +1,4 @@
 import osmnx as ox
-import networkx as nx
 from geopy.geocoders import Nominatim
 from GraphFindingAlgos import Dijkstra_Router
 
@@ -21,7 +20,7 @@ print(node_source)
 # Find the shortest path between the source and target nodes
 
 #shortest_path_correct = nx.shortest_path(graph, node_source, node_target, weight='length') Library function (Remove)
-shortest_path=Dijkstra_Router.dijkstra(graph,node_source,node_target)
+shortest_path= Dijkstra_Router.dijkstra(graph, node_source, node_target)
 
 # Print the shortest path
 print("Shortest path:", shortest_path)

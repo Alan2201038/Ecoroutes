@@ -1,12 +1,11 @@
 import os
 import pickle
 import requests
-import matplotlib.pyplot as plt
 import networkx as nx
 from geopy.geocoders import Nominatim
-from GraphFindingAlgos import AStar,Dijkstra
+from GraphFindingAlgos import AStar
 import math
-import folium
+
 
 def haversine(lon1, lat1, lon2, lat2):
     """
@@ -54,49 +53,48 @@ else:
             node_id = element["id"]
             lon = element["lon"]
             lat = element["lat"]
-            graph.add_node(node_id, pos=(lon, lat))
+            graph.add_node(node_id, pos=(lat,lon))
     for element in data["elements"]:
         if element["type"] == "way":
             node_ids = element["nodes"]
             for i in range(len(node_ids) - 1):
                 node1 = node_ids[i]
                 node2 = node_ids[i + 1]
-                lon1, lat1 = graph.nodes[node1]['pos']
-                lon2, lat2 = graph.nodes[node2]['pos']
-                dist=haversine(lat1,lon1,lat2,lon2)
+                lat1,lon1 = graph.nodes[node1]['pos']
+                lat2,lon2 = graph.nodes[node2]['pos']
+                dist=haversine(lon1,lat1,lon2,lat2)
 
                 graph.add_edge(node1, node2,weight=dist)
 
     with open(pfile, "wb") as f:
         pickle.dump(graph, f)
 
-print("Number of nodes:", len(graph.nodes))
-print("Number of edges:", len(graph.edges))
 
-#Long,Lat
-source = (103.835239,1.429464)
-destination = (103.8330,1.4173)
+#Latitude,Longitude
+source = (1.429464,103.835239)
+destination = (1.4173,103.8330)
 
 source_node = None
 destination_node = None
 
 for node_id, attributes in graph.nodes(data=True):
-    lon, lat = attributes["pos"]
-    temp1=haversine(lon, lat, source[0], source[1])
-    temp2=haversine(lon, lat, destination[0], destination[1])
+    lat,lon = attributes["pos"]
+    temp1=haversine(lon, lat, source[1], source[0])
+    temp2=haversine(lon, lat, destination[1], destination[0])
     if  temp1<= 0.015:
         source_node=node_id
     if  temp2<= 0.015:
         destination_node=node_id
-shortest_path=AStar.AStar(graph,source_node,destination_node,destination[0],destination[1])
+shortest_path= AStar.AStar(graph, source_node, destination_node, destination[0], destination[1])
 #shortest_path=Dijkstra.dijkstra(graph,source_node,destination_node)
 print("Shortest path:", shortest_path)
 geolocator = Nominatim(user_agent="ecoroutes_test")
 for n in shortest_path[0]:
     node_data = graph.nodes[n]["pos"]
-    longitude,latitude = node_data[0], node_data[1]
+    latitude,longitude = node_data[0], node_data[1]
     location = geolocator.reverse((latitude, longitude), exactly_one=True)
     print("Location name:", location.address)
+    print("Coordinate:",latitude,longitude)
 
 
 # # Draw the graph
