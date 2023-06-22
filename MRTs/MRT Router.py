@@ -4,7 +4,9 @@ from geopy.distance import geodesic
 import matplotlib.pyplot as plt
 import pickle
 import os
-import GraphFindingAlgos.AStar
+import sys
+sys.path.append('../')
+from GraphFindingAlgos import AStar
 
 mrtGraph= "MRT_Pickle_Graph"
 
@@ -131,7 +133,7 @@ def astar(start, goal):
                 open_set.add(neighbor)
 
     return None, float('inf')
-path,total_distance = GraphFindingAlgos.AStar.AStar(G, 'YISHUN MRT STATION', 'KHATIB MRT STATION', 103.8368, 1.3846)
+path,total_distance = AStar.AStar(G, 'YISHUN MRT STATION', 'KHATIB MRT STATION', 103.8368, 1.3846)
 
 #path, total_distance = astar('WOODLANDS MRT STATION', 'BUGIS MRT STATION')
 print(" -> ".join(path))
