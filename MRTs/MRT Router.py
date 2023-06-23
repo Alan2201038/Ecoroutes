@@ -4,9 +4,18 @@ from geopy.distance import geodesic
 import matplotlib.pyplot as plt
 import pickle
 import os
-import GraphFindingAlgos.AStar
+import sys
+sys.path.append( '../')
+from GraphFindingAlgos import AStar
+import finder
 
 mrtGraph= "MRT_Pickle_Graph"
+
+# Get the directory path of the script
+script_directory = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the absolute file path to the CSV file
+mrt_csv = os.path.join(script_directory, 'MRT Stations.csv')
 
 if os.path.exists(mrtGraph):
     with open(mrtGraph, "rb") as f:
@@ -14,7 +23,7 @@ if os.path.exists(mrtGraph):
         print("True")
 else:
     # Load the MRT station data
-    df = pd.read_csv('MRT Stations.csv')
+    df = pd.read_csv(mrt_csv)
 
     # Create an empty graph
     G = nx.Graph()
@@ -131,7 +140,13 @@ def astar(start, goal):
                 open_set.add(neighbor)
 
     return None, float('inf')
-path,total_distance = GraphFindingAlgos.AStar.AStar(G, 'YISHUN MRT STATION', 'KHATIB MRT STATION', 103.8368, 1.3846)
+start = input("Enter starting station name only in CAPS: ") + ' MRT STATION'
+end = input("Enter ending station name only in CAPS: ") + ' MRT STATION'
+endlat, endlong = finder.find(end, mrt_csv)
+print(start, end)
+print(endlat, endlong)
+path,total_distance = AStar.AStar(G, start, end, endlong, endlat)
+
 
 #path, total_distance = astar('WOODLANDS MRT STATION', 'BUGIS MRT STATION')
 print(" -> ".join(path))
