@@ -3,6 +3,8 @@ import pickle
 import requests
 import networkx as nx
 from geopy.geocoders import Nominatim
+import sys
+sys.path.append( '../')
 from GraphFindingAlgos import AStar
 import math
 
