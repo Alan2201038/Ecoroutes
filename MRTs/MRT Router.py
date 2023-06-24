@@ -1,127 +1,173 @@
 import pandas as pd
 import networkx as nx
 from geopy.distance import geodesic
-import requests
-import itertools
+import matplotlib.pyplot as plt
+import pickle
+import os
+import GraphFindingAlgos.AStar
 
-# Define the API endpoints
-bus_stops_url = "http://datamall2.mytransport.sg/ltaodataservice/BusStops"
-bus_routes_url = "http://datamall2.mytransport.sg/ltaodataservice/BusRoutes"
+mrtGraph= "MRT_Pickle_Graph"
 
-# Define the headers for the API request
-headers = {
-    "AccountKey": "nDR1RKXtRtOhzKfgXjcIyQ==",  # replace with your account key
-    "accept": "application/json"
-}
-
-# Function to handle paginated responses
-def fetch_data(url):
-    offset = 0
-    records = []
-
-    while True:
-        response = requests.get(f"{url}?$skip={offset}", headers=headers)
-        data = response.json()
-
-        records.extend(data['value'])
-
-        if len(data['value']) < 500:
-            break
-
-        offset += 500
-
-    return records
-
-# Fetch data from APIs
-bus_stops_data = fetch_data(bus_stops_url)
-bus_routes_data = fetch_data(bus_routes_url)
-
-# Convert JSON to pandas DataFrame
-bus_stops = pd.json_normalize(bus_stops_data)
-bus_routes = pd.json_normalize(bus_routes_data)
-
-bus_stops.set_index('BusStopCode', inplace=True)
-bus_routes = bus_routes[bus_routes['BusStopCode'].isin(bus_stops.index)]
-
-transfer_points = bus_routes.groupby('BusStopCode')['ServiceNo'].apply(list).to_dict()
-
-TRANSFER_PENALTY = 0  # artificial cost to discourage unnecessary service changes
-
-G = nx.DiGraph()
-
-# Create a new node for each stop-service pair
-for index, stop in bus_routes.iterrows():
-    G.add_node((stop['BusStopCode'], stop['ServiceNo']))
-
-# Connect nodes corresponding to consecutive stops on the same service
-for service in bus_routes['ServiceNo'].unique():
-    service_stops = bus_routes[bus_routes['ServiceNo'] == service].sort_values('StopSequence')
-    for (_, stop1), (_, stop2) in zip(service_stops.iterrows(), service_stops.iloc[1:].iterrows()):
-        distance = stop2['Distance'] - stop1['Distance']  # Use the difference in the 'Distance' fields
-        G.add_edge((stop1['BusStopCode'], service), (stop2['BusStopCode'], service), distance=distance)
-
-# Connect nodes corresponding to the same stop but different services
-for stop_code, services in transfer_points.items():
-    for service1, service2 in itertools.combinations(services, 2):
-        G.add_edge((stop_code, service1), (stop_code, service2), distance=TRANSFER_PENALTY)
-        G.add_edge((stop_code, service2), (stop_code, service1), distance=TRANSFER_PENALTY)
-
-        
-
-def heuristic(node1, node2):
-    stop1_code, _ = node1
-    stop2_code, _ = node2
-    stop1 = bus_stops.loc[stop1_code]
-    stop2 = bus_stops.loc[stop2_code]
-    stop1_coords = stop1.Latitude, stop1.Longitude
-    stop2_coords = stop2.Latitude, stop2.Longitude
-    return geodesic(stop1_coords, stop2_coords).km
-
-start_stop = '59079'
-end_stop = '59041'
-
-for edge in G.edges(data=True):
-    if edge[2]['distance'] < 0:
-        print(edge)
-
-
-start_nodes = [(start_stop, service) for service in transfer_points.get(start_stop, [])]
-end_nodes = [(end_stop, service) for service in transfer_points.get(end_stop, [])]
-
-if not start_nodes:
-    print(f'Start stop {start_stop} not found in graph.')
-elif not end_nodes:
-    print(f'End stop {end_stop} not found in graph.')
+if os.path.exists(mrtGraph):
+    with open(mrtGraph, "rb") as f:
+        G = pickle.load(f)
+        print("True")
 else:
-    # Find the shortest path from any start node to any end node
-    paths = []
-    for start_node in start_nodes:
-        for end_node in end_nodes:
-            if nx.has_path(G, start_node, end_node):
-                path = nx.astar_path(G, start_node, end_node, heuristic=heuristic)
-                total_distance = sum(G.edges[edge]['distance'] for edge in zip(path, path[1:]))
-                paths.append((path, total_distance))
+    # Load the MRT station data
+    df = pd.read_csv('MRT Stations.csv')
 
-    if paths:
-        path, total_distance = min(paths, key=lambda x: x[1])  # Get the shortest path
-        print("Path found:")
-        for (start, service1), (end, service2) in zip(path, path[1:]):
-            if start == end:
-                print(f'Transfer penalty incurred! Switch from service {service1} to service {service2} at stop {start}')
-            else:
-                print(f'Take bus service {service1} from stop {start} to stop {end}')
+    # Create an empty graph
+    G = nx.Graph()
 
-        transfers = len([edge for edge in zip(path, path[1:]) if G.edges[edge]['distance'] == TRANSFER_PENALTY])
-        transfer_penalty_exclusion = transfers * TRANSFER_PENALTY
-        total_distance = total_distance - transfer_penalty_exclusion
-        total_time = total_distance / 30 * 60 #Assuming a speed of 30km/h, convert to minutes
-        total_time += transfers * 5 #Add 5 minutes for each transfer
-        total_emissions = total_distance * 0.073  #(Source: https://www.eco-business.com/news/singapores-mrt-lines-be-graded-green-ness/)
+# Helper function to split station number into prefix and numeric part
+    def split_stn_no(stn_no):
+        prefix = ''.join(filter(str.isalpha, stn_no))
+        num = ''.join(filter(str.isdigit, stn_no))
+        return prefix, int(num) if num.isdigit() else None
 
+    # Add a node for each station
+    for index, row in df.iterrows():
+        G.add_node(row['STN_NAME'], pos=(row['Latitude'], row['Longitude']))
 
-        print(f'Total distance: {total_distance} km')
-        print(f'Total time: {total_time} minutes')
-        print(f"Carbon emissions: {total_emissions} kg CO2")
+    # Create a dictionary to store connections
+    connections = {}
 
-    else:
-        print(f'No path found from stop {start_stop} to stop {end_stop}')
+    # Add connections for each station
+    for index, row in df.iterrows():
+        stn_nos = row['STN_NO'].split('/')
+        for stn_no in stn_nos:
+            prefix, num = split_stn_no(stn_no)
+            if prefix not in connections:
+                connections[prefix] = []
+            connections[prefix].append((num, row['STN_NAME']))
+
+    # Special cases for Punggol and Sengkang
+    connections['PTC'] = [(1, 'PUNGGOL MRT STATION'), (7, 'PUNGGOL MRT STATION')]
+    connections['STC'] = [(1, 'SENGKANG MRT STATION'), (5, 'SENGKANG MRT STATION')]
+
+    # Add edges for each pair of stations on the same line with consecutive numbers
+    for prefix, stns in connections.items():
+        stns.sort()
+        for i in range(len(stns) - 1):
+            num1, node1 = stns[i]
+            num2, node2 = stns[i+1]
+            if abs(num1 - num2) == 1:
+                G.add_edge(node1, node2, weight=geodesic(G.nodes[node1]['pos'], G.nodes[node2]['pos']).m)
+
+# Manually add edges for Punggol and Sengkang to their connected LRT stations
+    G.add_edge('PUNGGOL MRT STATION', 'SAM KEE LRT STATION', weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['SAM KEE LRT STATION']['pos']).m)
+    G.add_edge('PUNGGOL MRT STATION', 'SOO TECK LRT STATION', weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['SOO TECK LRT STATION']['pos']).m)
+    G.add_edge('PUNGGOL MRT STATION', 'COVE LRT STATION', weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['COVE LRT STATION']['pos']).m)
+    G.add_edge('PUNGGOL MRT STATION', 'DAMAI LRT STATION', weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['DAMAI LRT STATION']['pos']).m)
+    G.add_edge('SENGKANG MRT STATION', 'CHENG LIM LRT STATION', weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['CHENG LIM LRT STATION']['pos']).m)
+    G.add_edge('SENGKANG MRT STATION', 'RENJONG LRT STATION', weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['RENJONG LRT STATION']['pos']).m)
+    G.add_edge('SENGKANG MRT STATION', 'COMPASSVALE LRT STATION', weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['COMPASSVALE LRT STATION']['pos']).m)
+    G.add_edge('SENGKANG MRT STATION', 'RANGGUNG LRT STATION', weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['RANGGUNG LRT STATION']['pos']).m)
+
+    # Manually add edges for Yew Tee and Kranji
+    G.add_edge('YEW TEE MRT STATION', 'KRANJI MRT STATION', weight=geodesic(G.nodes['YEW TEE MRT STATION']['pos'], G.nodes['KRANJI MRT STATION']['pos']).m)
+
+    # Manually add edges for Caldecott and Botanic Gardens
+    G.add_edge('CALDECOTT MRT STATION', 'BOTANIC GARDENS MRT STATION', weight=geodesic(G.nodes['CALDECOTT MRT STATION']['pos'], G.nodes['BOTANIC GARDENS MRT STATION']['pos']).m)
+
+    # Manually add edges for Caldecott and Stevens
+    G.add_edge('CALDECOTT MRT STATION', 'STEVENS MRT STATION', weight=geodesic(G.nodes['CALDECOTT MRT STATION']['pos'], G.nodes['STEVENS MRT STATION']['pos']).m)
+
+    # Manually add edges for Marina Bay and Gardens By The Bay
+    G.add_edge('MARINA BAY MRT STATION', 'GARDENS BY THE BAY MRT STATION', weight=geodesic(G.nodes['MARINA BAY MRT STATION']['pos'], G.nodes['GARDENS BY THE BAY MRT STATION']['pos']).m)
+
+    # Manually add edges for Bukit Panjang and Senja
+    G.add_edge('BUKIT PANJANG MRT STATION', 'SENJA LRT STATION', weight=geodesic(G.nodes['BUKIT PANJANG MRT STATION']['pos'], G.nodes['SENJA LRT STATION']['pos']).m)
+
+    with open(mrtGraph, "wb") as f:
+        pickle.dump(G, f)
+
+print(len(G.nodes))
+def dist(a, b):
+    (x1, y1) = G.nodes[a]['pos']
+    (x2, y2) = G.nodes[b]['pos']
+    return geodesic((x1, y1), (x2, y2)).m
+
+#A* algo
+
+def astar(start, goal):
+    def heuristic(a, b):
+        (x1, y1) = G.nodes[a]['pos']
+        (x2, y2) = G.nodes[b]['pos']
+        return geodesic((x1, y1), (x2, y2)).m
+
+    def reconstruct_path(came_from, current):
+        path = [current]
+        while current in came_from:
+            current = came_from[current]
+            path.append(current)
+        path.reverse()
+        return path
+
+    closed_set = set()
+    open_set = set([start])
+    came_from = {}
+    g_score = {node: float('inf') for node in G.nodes}
+    g_score[start] = 0
+    f_score = {node: float('inf') for node in G.nodes}
+    f_score[start] = heuristic(start, goal)
+
+    while open_set:
+        current = min(open_set, key=lambda node: f_score[node])
+        if current == goal:
+            return reconstruct_path(came_from, current), g_score[goal]
+
+        open_set.remove(current)
+        closed_set.add(current)
+
+        for neighbor in G.neighbors(current):
+            tentative_g_score = g_score[current] + G.edges[current, neighbor]['weight']
+            if neighbor in closed_set and tentative_g_score >= g_score[neighbor]:
+                continue
+            if neighbor not in open_set or tentative_g_score < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = tentative_g_score
+                f_score[neighbor] = g_score[neighbor] + heuristic(neighbor, goal)
+                open_set.add(neighbor)
+
+    return None, float('inf')
+path,total_distance = GraphFindingAlgos.AStar.AStar(G, 'YISHUN MRT STATION', 'KHATIB MRT STATION', 103.8368, 1.3846)
+
+#path, total_distance = astar('WOODLANDS MRT STATION', 'BUGIS MRT STATION')
+print(" -> ".join(path))
+
+print(f"Total distance: {total_distance/1000} km") #not accurate cause this is straight line distance from one node to the next
+
+# Calculate time taken for distance travelled
+time_taken = total_distance/1000 / 45  # Time taken in hours
+
+# Calculate additional time for stops
+additional_time = len(path) / 60  # Time for stops in hours
+
+# Add the two times together
+total_time = time_taken + additional_time
+
+# Convert the decimal hours to hours and minutes
+hours = int(total_time)
+minutes = (total_time - hours) * 60
+
+print(f"Estimated time for the route: {hours} hours and {int(minutes)} minutes")
+
+carbon_emissions = total_distance/1000 * 0.0132
+print(f"Carbon emissions: {carbon_emissions} kg CO2")
+
+# Extract the positions of the nodes for the plot
+pos = nx.get_node_attributes(G, 'pos')
+
+# Convert positions from lat/long to an easier-to-visualize system
+# This is a simple linear conversion that might distort distances, but it will work for this visualization
+pos = {node: (long, -lat) for node, (lat, long) in pos.items()}
+
+# Draw the graph, with nodes labeled by their names
+nx.draw_networkx(G, pos, with_labels=True, node_size=20, font_size=6)
+
+# Flip the y-axis
+plt.gca().invert_yaxis()
+
+# Display the plot
+plt.show()
