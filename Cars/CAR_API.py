@@ -69,24 +69,45 @@ else:
     with open(pfile, "wb") as f:
         pickle.dump(graph, f)
 
-
 #Latitude,Longitude
-source = (1.429464,103.835239)
-destination = (1.4173,103.8330)
+source = (1.4296658, 103.8350370)
+destination = (1.3693842, 103.8502646)
 
 source_node = None
 destination_node = None
+src_acc=0.015
+des_acc=0.015
+
+
 
 for node_id, attributes in graph.nodes(data=True):
     lat,lon = attributes["pos"]
     temp1=haversine(lon, lat, source[1], source[0])
     temp2=haversine(lon, lat, destination[1], destination[0])
-    if  temp1<= 0.015:
+    if  temp1<= src_acc:
         source_node=node_id
-    if  temp2<= 0.015:
+    if  temp2<= des_acc:
         destination_node=node_id
+while(source_node==None):
+    src_acc+=0.001
+    print("add src")
+    for node_id, attributes in graph.nodes(data=True):
+        lat, lon = attributes["pos"]
+        temp1 = haversine(lon, lat, source[1], source[0])
+        if temp1 <= src_acc:
+            source_node = node_id
+while(destination_node==None):
+    des_acc+=0.001
+    print("des now:"+str(des_acc))
+    for node_id, attributes in graph.nodes(data=True):
+        lat, lon = attributes["pos"]
+        temp1 = haversine(lon, lat, destination[1], destination[0])
+        if temp1 <= des_acc:
+            destination_node = node_id
+
 shortest_path= AStar.AStar(graph, source_node, destination_node, destination[0], destination[1])
 #shortest_path=Dijkstra.dijkstra(graph,source_node,destination_node)
+print(src_acc)
 print("Shortest path:", shortest_path)
 geolocator = Nominatim(user_agent="ecoroutes_test")
 for n in shortest_path[0]:
@@ -94,6 +115,7 @@ for n in shortest_path[0]:
     latitude,longitude = node_data[0], node_data[1]
     location = geolocator.reverse((latitude, longitude), exactly_one=True)
     print("Location name:", location.address)
+    print("NodeID",n)
     print("Coordinate:",latitude,longitude)
 
 
