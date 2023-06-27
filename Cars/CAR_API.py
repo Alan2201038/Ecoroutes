@@ -7,6 +7,7 @@ import sys
 sys.path.append( '../')
 from GraphFindingAlgos import AStar
 import math
+import GUI.RouteGUI as GUI
 
 
 def haversine(lon1, lat1, lon2, lat2):
@@ -21,6 +22,8 @@ def haversine(lon1, lat1, lon2, lat2):
     distance = R * c
     return distance
 
+# Create a path_list for the coordinates of the path
+path_list = []
 
 pfile = "graph.pickle"
 
@@ -97,7 +100,10 @@ for n in shortest_path[0]:
     location = geolocator.reverse((latitude, longitude), exactly_one=True)
     print("Location name:", location.address)
     print("Coordinate:",latitude,longitude)
+    path_list.append([latitude,longitude])
 
+print(path_list)
+GUI.draw_map(path_list)
 
 # # Draw the graph
 # plt.figure(figsize=(10, 10))
