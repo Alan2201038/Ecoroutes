@@ -9,7 +9,6 @@ sys.path.append( '../')
 from GraphFindingAlgos import AStar
 import finder
 import GUI.RouteGUI as GUI
-import webbrowser
 
 mrtGraph= "MRT_Pickle_Graph"
 
@@ -159,7 +158,8 @@ endlat, endlong = finder.find(end, mrt_csv)
 # print(endlat, endlong)
 path,total_distance = AStar.AStar(G, start, end, endlong, endlat)
 # print(path)
-m = GUI.draw_map(path)
+
+GUI.draw_map(path)
 
 #path, total_distance = astar('WOODLANDS MRT STATION', 'BUGIS MRT STATION')
 print(" -> ".join(path))
@@ -199,7 +199,3 @@ plt.gca().invert_yaxis()
 
 # Display the plot
 # plt.show()
-
-# Draw Map in Folium
-m.save('map.html')
-webbrowser.open('map.html')

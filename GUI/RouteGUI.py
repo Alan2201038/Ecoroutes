@@ -1,15 +1,19 @@
 import folium
 import os
 import webbrowser
-import finder
+import MRTs.finder as finder
 
 # Get the directory path of the script
 script_directory = os.path.dirname(os.path.abspath(__file__))
 # Construct the absolute file path to the CSV file
 mrt_csv = os.path.join(script_directory,'..', 'MRTs', 'MRT Stations.csv')
+# Construct the absolute file path to the templates folder
+map_html = os.path.join(script_directory, 'templates', 'folium.html')
 
 # This function has to take in a list of MRT Stations in path order OR
 # a list of coordinates in path order following this format [lat, long].
+# Afterwards, it will save the map.html file.
+
 def draw_map(path_list):
 
     # Creating a Folium Map of Singapore
@@ -64,7 +68,10 @@ def draw_map(path_list):
             
     # print(path_coordinates)
 
-    return m
+    # Draw Map in Folium
+    m.save(map_html)
+    webbrowser.open(map_html)
+    # return m
 
 # This function checks the path list format, weather it's a list of MRT Stations or a list of coordinates.
 def format_checker(path):
