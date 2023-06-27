@@ -8,6 +8,8 @@ import sys
 sys.path.append( '../')
 from GraphFindingAlgos import AStar
 import finder
+import RouteGUI as GUI
+import webbrowser
 
 mrtGraph= "MRT_Pickle_Graph"
 
@@ -16,6 +18,9 @@ script_directory = os.path.dirname(os.path.abspath(__file__))
 
 # Construct the absolute file path to the CSV file
 mrt_csv = os.path.join(script_directory, 'MRT Stations.csv')
+
+# # Creating a Folium Map of Singapore
+# m = folium.Map(location=[1.3521, 103.8198], zoom_start=12)
 
 if os.path.exists(mrtGraph):
     with open(mrtGraph, "rb") as f:
@@ -140,13 +145,21 @@ def astar(start, goal):
                 open_set.add(neighbor)
 
     return None, float('inf')
-start = input("Enter starting station name only in CAPS: ") + ' MRT STATION'
-end = input("Enter ending station name only in CAPS: ") + ' MRT STATION'
-endlat, endlong = finder.find(end, mrt_csv)
-print(start, end)
-print(endlat, endlong)
-path,total_distance = AStar.AStar(G, start, end, endlong, endlat)
 
+# MAIN CODE
+start = input("Enter starting station name only: ") + ' MRT STATION'
+end = input("Enter ending station name only: ") + ' MRT STATION'
+
+start = start.upper()
+end = end.upper()
+print(start, end)
+
+endlat, endlong = finder.find(end, mrt_csv)
+# print(start, end)
+# print(endlat, endlong)
+path,total_distance = AStar.AStar(G, start, end, endlong, endlat)
+# print(path)
+m = GUI.draw_map(path)
 
 #path, total_distance = astar('WOODLANDS MRT STATION', 'BUGIS MRT STATION')
 print(" -> ".join(path))
@@ -185,4 +198,8 @@ nx.draw_networkx(G, pos, with_labels=True, node_size=20, font_size=6)
 plt.gca().invert_yaxis()
 
 # Display the plot
-plt.show()
+# plt.show()
+
+# Draw Map in Folium
+m.save('map.html')
+webbrowser.open('map.html')

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_4c489c64663d345d7125b0e07b58bbf1 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_4c489c64663d345d7125b0e07b58bbf1" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_4c489c64663d345d7125b0e07b58bbf1 = L.map(
+                "map_4c489c64663d345d7125b0e07b58bbf1",
+                {
+                    center: [1.3521, 103.8198],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 12,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_65a5ec70976b01c87f653229d61025ad = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "Data by \u0026copy; \u003ca target=\"_blank\" href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca target=\"_blank\" href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            ).addTo(map_4c489c64663d345d7125b0e07b58bbf1);
+        
+    
+            var marker_241a87f842c1ce9fd7b73ca6cb33675e = L.marker(
+                [1.429443081, 103.835005],
+                {}
+            ).addTo(map_4c489c64663d345d7125b0e07b58bbf1);
+        
+    
+            var icon_d7ba37c733243f79ef357e201a4fd963 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "train", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_241a87f842c1ce9fd7b73ca6cb33675e.setIcon(icon_d7ba37c733243f79ef357e201a4fd963);
+        
+    
+        var popup_d251673e587267109db2bb38c3b2bf76 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_5428c23b0a590fd7680ade062dc461af = $(`<div id="html_5428c23b0a590fd7680ade062dc461af" style="width: 100.0%; height: 100.0%;">YISHUN MRT STATION</div>`)[0];
+                popup_d251673e587267109db2bb38c3b2bf76.setContent(html_5428c23b0a590fd7680ade062dc461af);
+            
+        
+
+        marker_241a87f842c1ce9fd7b73ca6cb33675e.bindPopup(popup_d251673e587267109db2bb38c3b2bf76)
+        ;
+
+        
+    
+    
+            var marker_c052dc04a3802ec1bc944071f4d44c6b = L.marker(
+                [1.41738337, 103.8329799],
+                {}
+            ).addTo(map_4c489c64663d345d7125b0e07b58bbf1);
+        
+    
+            var icon_0b31a837c66dea4d4d345b7e7aac2100 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "train front", "iconColor": "white", "markerColor": "blue", "prefix": "fa"}
+            );
+            marker_c052dc04a3802ec1bc944071f4d44c6b.setIcon(icon_0b31a837c66dea4d4d345b7e7aac2100);
+        
+    
+        var popup_1180872057696cf854365d6776cc1220 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_0088598827ed246aac2f9311f659e42e = $(`<div id="html_0088598827ed246aac2f9311f659e42e" style="width: 100.0%; height: 100.0%;">KHATIB MRT STATION</div>`)[0];
+                popup_1180872057696cf854365d6776cc1220.setContent(html_0088598827ed246aac2f9311f659e42e);
+            
+        
+
+        marker_c052dc04a3802ec1bc944071f4d44c6b.bindPopup(popup_1180872057696cf854365d6776cc1220)
+        ;
+
+        
+    
+    
+            var marker_47081043f1332fbe0937b4650d592702 = L.marker(
+                [1.381756046, 103.8449473],
+                {}
+            ).addTo(map_4c489c64663d345d7125b0e07b58bbf1);
+        
+    
+            var icon_cadb97f55d902d12d8d1798ce44b091b = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "train", "iconColor": "white", "markerColor": "red", "prefix": "fa"}
+            );
+            marker_47081043f1332fbe0937b4650d592702.setIcon(icon_cadb97f55d902d12d8d1798ce44b091b);
+        
+    
+        var popup_6f857f5b1acb915447e6823de78b9341 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_639bf2ec623ef20bb7a553627951d099 = $(`<div id="html_639bf2ec623ef20bb7a553627951d099" style="width: 100.0%; height: 100.0%;">YIO CHU KANG MRT STATION</div>`)[0];
+                popup_6f857f5b1acb915447e6823de78b9341.setContent(html_639bf2ec623ef20bb7a553627951d099);
+            
+        
+
+        marker_47081043f1332fbe0937b4650d592702.bindPopup(popup_6f857f5b1acb915447e6823de78b9341)
+        ;
+
+        
+    
+    
+            var poly_line_85d7fc532a9501c12d16fce77f36af15 = L.polyline(
+                [[1.429443081, 103.835005], [1.41738337, 103.8329799], [1.381756046, 103.8449473]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": "5", "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_4c489c64663d345d7125b0e07b58bbf1);
+        
+</script>
+</html>
