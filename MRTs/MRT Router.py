@@ -8,7 +8,7 @@ import sys
 sys.path.append( '../')
 from GraphFindingAlgos import AStar
 import finder
-import RouteGUI as GUI
+import GUI.RouteGUI as GUI
 import webbrowser
 
 mrtGraph= "MRT_Pickle_Graph"

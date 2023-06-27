@@ -5,9 +5,8 @@ import finder
 
 # Get the directory path of the script
 script_directory = os.path.dirname(os.path.abspath(__file__))
-
 # Construct the absolute file path to the CSV file
-mrt_csv = os.path.join(script_directory,'MRTs', 'MRT Stations.csv')
+mrt_csv = os.path.join(script_directory,'..', 'MRTs', 'MRT Stations.csv')
 
 # This function has to take in a list of MRT Stations in path order OR
 # a list of coordinates in path order following this format [lat, long].

@@ -6,7 +6,7 @@ import networkx as nx
 from geopy.geocoders import Nominatim
 from GraphFindingAlgos import AStar,Dijkstra
 import math
-import RouteGUI as RouteGUI
+import GUI.RouteGUI as GUI
 import pandas as pd
 from geopy.distance import geodesic
 import time
