@@ -12,9 +12,11 @@ map_html = os.path.join(script_directory, 'templates', 'folium.html')
 
 # This function has to take in a list of MRT Stations in path order OR
 # a list of coordinates in path order following this format [lat, long].
+# It also takes in a string 'mode' to differentiate between the modes of transport.
+# The modes of transport are 'Car' and 'Train' and 'Bus'
 # Afterwards, it will save the map.html file.
 
-def draw_map(path_list):
+def draw_map(path_list, mode):
 
     # Creating a Folium Map of Singapore
     m = folium.Map(location=[1.3521, 103.8198], zoom_start=12)
@@ -35,6 +37,14 @@ def draw_map(path_list):
     elif format == 1:
         path_coordinates = path_list.copy()
 
+    # Differentiating the modes of transport and Icons
+    if mode == "Car":
+        icon_map = 'car'
+    elif mode == "Train":
+        icon_map = 'train'
+    elif mode == "Bus":
+        icon_map = 'bus'
+
     # Adding Markers into folium map
     for position in range(len(path_coordinates)):
 
@@ -43,19 +53,19 @@ def draw_map(path_list):
             folium.Marker(
                 location = path_coordinates[position],
                 popup = path_list[position],
-                icon = folium.Icon(color='green', icon='train', prefix='fa'),
+                icon = folium.Icon(color='green', icon = icon_map , prefix='fa'),
                 ).add_to(m)
         elif position == len(path_coordinates) - 1:
             folium.Marker(
                 location = path_coordinates[position],
                 popup = path_list[position],
-                icon = folium.Icon(color='red', icon='train', prefix='fa'),
+                icon = folium.Icon(color='red', icon = icon_map , prefix='fa'),
                 ).add_to(m)
         else:
             folium.Marker(
                 location = path_coordinates[position],
                 popup = path_list[position],
-                icon = folium.Icon(color='blue', icon='train front', prefix='fa'),
+                icon = folium.Icon(color='blue', icon = icon_map, prefix='fa'),
                 ).add_to(m)
             
     # Adding a line to connect the markers

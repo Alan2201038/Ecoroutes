@@ -159,7 +159,7 @@ endlat, endlong = finder.find(end, mrt_csv)
 path,total_distance = AStar.AStar(G, start, end, endlong, endlat)
 # print(path)
 
-GUI.draw_map(path)
+GUI.draw_map(path, "Train")
 
 #path, total_distance = astar('WOODLANDS MRT STATION', 'BUGIS MRT STATION')
 print(" -> ".join(path))

@@ -24,6 +24,7 @@ def haversine(lon1, lat1, lon2, lat2):
 
 # Create a path_list for the coordinates of the path
 path_list = []
+path_address = []
 
 pfile = "graph.pickle"
 
@@ -100,11 +101,37 @@ for n in shortest_path[0]:
     location = geolocator.reverse((latitude, longitude), exactly_one=True)
     print("Location name:", location.address)
     print("Coordinate:",latitude,longitude)
+    path_address.append(location.address)
     path_list.append([latitude,longitude])
 
 print(path_list)
-GUI.draw_map(path_list)
+print(path_address)
+# GUI.draw_map(path_list, "Car")
 
+def shorten_path(path_address, path_coordinates):
+    unique_addresses = []
+    unique_coordinates = []
+    
+    prev_address_number = None
+    
+    for address, coordinates in zip(path_address, path_coordinates):
+        address_number = address.split(',')[-2].strip()
+        
+        if address_number != prev_address_number:
+            unique_addresses.append(address)
+            unique_coordinates.append(coordinates)
+        
+        prev_address_number = address_number
+    
+    return unique_addresses, unique_coordinates
+
+
+
+# unique_addresses, unique_coordinates = shorten_path(path_address, path_list)
+# print(unique_addresses)
+# print(unique_coordinates)
+
+# GUI.draw_map(unique_coordinates, "Car")
 # # Draw the graph
 # plt.figure(figsize=(10, 10))
 # pos = nx.get_node_attributes(graph, 'pos')
