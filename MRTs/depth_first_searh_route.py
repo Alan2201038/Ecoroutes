@@ -58,12 +58,12 @@ def create_graph(filename):
 
 
     # Print nodes and their corresponding edges
-    # for node in G.nodes():
-    #     edges = list(G.edges(node))
-    #     if edges:
-    #         print("Node:", node)
-    #         print("Edges:", edges)
-    #         print()
+    for node in G.nodes():
+        edges = list(G.edges(node))
+        if edges:
+            print("Node:", node)
+            print("Edges:", edges)
+            print()
     pos = nx.get_node_attributes(G, 'pos')
     return G
 
@@ -103,8 +103,9 @@ def plot_graph(G,path):
 
     # Display the plot
     plt.show()
-
-def shortest_path(graph, start, end, path=None):
+    
+# The following code is a simple DFS to find the shorest path between 2 nodes in unweighted graph
+def depth_frist_Search_route(graph, start, end, path=None):
     if path is None:
         path = []
     path = path + [start]
@@ -115,7 +116,7 @@ def shortest_path(graph, start, end, path=None):
     shortest = None
     for node in graph.neighbors(start):
         if node not in path:
-            new_path = shortest_path(graph, node, end, path)
+            new_path = depth_frist_Search_route(graph, node, end, path)
             if new_path:
                 if not shortest or len(new_path) < len(shortest):
                     shortest = new_path
@@ -146,7 +147,7 @@ start_station = 'WOODLANDS MRT STATION'
 end_station = 'RAFFLES PLACE MRT STATION'
 
 # Call the modified shortest_path function
-path = shortest_path(G, start_station, end_station)
+path = depth_frist_Search_route(G, start_station, end_station)
 # path2 = all_paths(G,start_station,end_station)
 
 # for path in path2:
