@@ -45,6 +45,13 @@ def AStar(graph,start,end,end_lat,end_lon):
     for neighbor in neighbors:
       edge_data = graph.get_edge_data(current_node, neighbor)  # Get the edge data between current_node and neighbor
       edge_weight = edge_data.get('weight', float('inf'))
+      edge_direction = edge_data.get('direction', 'both')  # Get the direction attribute of the edge
+      edge_transportation=edge_data.get('transportation','car')
+      if edge_transportation=="Mrt":
+        print("ASD")
+      if edge_direction == 'backward':
+        # Illegal route since it's a one-way street, so ignore
+        continue
 
       #Additional computation of heuristic(Euclidean dist between neighbour node and distance between end node)
       node_data = graph.nodes[neighbor]["pos"]

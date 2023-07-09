@@ -1,3 +1,5 @@
+#OUTDATED
+
 import osmnx as ox
 from geopy.geocoders import Nominatim
 from GraphFindingAlgos import Dijkstra_Router
