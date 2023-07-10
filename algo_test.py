@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from geopy.geocoders import Nominatim
 from GraphFindingAlgos import AStar, Dijkstra
-from GraphFindingAlgos import AStar_CarMRT
+from GraphFindingAlgos import AStar_Eco
 import math
 import folium
 import pandas as pd
@@ -38,7 +38,11 @@ def haversine(lat1, lon1, lat2, lon2):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     distance = R * c
     return distance
-
+def heuristic(u, v):
+    # Calculate the Euclidean distance between two nodes based on their latitude and longitude
+    lat1, lon1 = graph.nodes[u]['pos'][0], graph.nodes[u]['pos'][1]
+    lat2, lon2 = graph.nodes[v]['pos'][0], graph.nodes[v]['pos'][1]
+    return haversine(lat1, lon1, lat2, lon2)
 
 # Create a networkx graph
 graph = nx.Graph()
@@ -72,9 +76,9 @@ graph.add_edge("Node10", "AMK", weight=amk_distance)
 
 # Add edges for the direct connection between start and end nodes
 direct_distance = haversine(start_lat, start_lon, amk_lat, amk_lon)
-graph.add_edge("Yishun", "AMK", weight=15)
+graph.add_edge("Yishun", "AMK", weight=13.2675,transportation="Mrt")
 #graph.add_edge("Yishun", "AMK", weight=direct_distance)
-graph.add_edge("AMK", "Bishan", weight=2.4)
+graph.add_edge("AMK", "Bishan", weight=2.4,transportation="Mrt")
 
 # Print the graph information
 print("Graph nodes:")
@@ -100,17 +104,15 @@ for node in graph.nodes():
     x, y = map(longitude, latitude)
     node_positions[node] = (x, y)
 
-def heuristic(u, v):
-    # Calculate the Euclidean distance between two nodes based on their latitude and longitude
-    lat1, lon1 = graph.nodes[u]['pos'][0], graph.nodes[u]['pos'][1]
-    lat2, lon2 = graph.nodes[v]['pos'][0], graph.nodes[v]['pos'][1]
-    return haversine(lat1, lon1, lat2, lon2)
-shortest_path=AStar.AStar(graph,"Yishun","Bishan",end_lat,end_lon)
 path=nx.astar_path(graph,"Yishun","Bishan",heuristic=heuristic, weight='weight')
+total_distance = nx.astar_path_length(graph, "Yishun", "Bishan", heuristic=heuristic, weight='weight')
+eco_path=AStar_Eco.AStar(graph,"Yishun","Bishan",end_lat,end_lon)
+
 print("Fastest path from Yishun to Bishan:")
 print(path)
-print("Shortest path from Yishun to Bishan:")
-print(shortest_path)
+print(total_distance)
+print("Eco path from Yishun to Bishan:")
+print(eco_path)
 
 # Draw the nodes
 nx.draw_networkx_nodes(graph, node_positions, node_size=200, node_color='red')
