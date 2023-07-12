@@ -67,7 +67,7 @@ def AStar(graph,start,end,end_lat,end_lon):
       if eco_total_distance < eco_neighbour_distance:
         distance_dict[neighbor] = (total_distance - heu, heu,edge_transportation)
         prev_dict[neighbor] = current_node
-        heap.insert((neighbor, total_distance - heu, heu))
+        heap.insert((neighbor, total_distance, heu))
 
   path = []
   current_node = end
