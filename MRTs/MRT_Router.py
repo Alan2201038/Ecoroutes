@@ -145,6 +145,7 @@ def astar(start, goal):
 
     return None, float('inf')
 
+<<<<<<< HEAD:MRTs/MRT_Router.py
 # MAIN CODE
 start = input("Enter starting station name only: ") + ' MRT STATION'
 end = input("Enter ending station name only: ") + ' MRT STATION'
@@ -160,6 +161,10 @@ path,total_distance = AStar.AStar(G, start, end, endlong, endlat)
 # print(path)
 
 GUI.draw_map(path, "Train")
+=======
+
+path,total_distance = GraphFindingAlgos.AStar.AStar(G, 'YISHUN MRT STATION', 'BISHAN MRT STATION', 1.2766, 103.8458)
+>>>>>>> tthh:MRTs/MRT Router.py
 
 #path, total_distance = astar('WOODLANDS MRT STATION', 'BUGIS MRT STATION')
 print(" -> ".join(path))

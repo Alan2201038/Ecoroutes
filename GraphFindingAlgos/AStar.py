@@ -51,11 +51,11 @@ def AStar(graph,start,end,end_lat,end_lon):
 
       heu = heuristic(longitude, latitude, end_lon, end_lat)
       total_distance = distance_dict[current_node][0] + edge_weight + heu
-
-      if total_distance < distance_dict[neighbor][0]:
+      #Check if the total distance travelled is less than actual distance + heuristic of the neighbour node
+      if total_distance < distance_dict[neighbor][0]+distance_dict[neighbor][1]:
         distance_dict[neighbor] = (total_distance-heu, heu)
         prev_dict[neighbor] = current_node
-        heap.insert((neighbor, total_distance, heu))
+        heap.insert((neighbor, total_distance-heu, heu))
 
   path = []
   current_node = end
