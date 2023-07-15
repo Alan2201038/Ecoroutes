@@ -42,7 +42,6 @@ def AStar(graph,start,end,end_lat,end_lon,transportation="Car"):
     current_node, current_distance,est_dist = heap.get_root()
 
     if current_node == end:  #Reached the target node
-      print("Fasd")
       break
     if current_node in visited:
       continue
@@ -56,7 +55,6 @@ def AStar(graph,start,end,end_lat,end_lon,transportation="Car"):
       edge_direction = edge_data.get('direction', 'both')  # Get the direction attribute of the edge
 
       if edge_direction == 'backward':
-        print("ASD")
         #Illegal route since it's a one-way street, so ignore
         continue
 
