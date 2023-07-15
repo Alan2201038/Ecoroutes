@@ -1,8 +1,8 @@
-
 import math
 
 from GraphFindingAlgos import minheap
-
+"""This functions calculates the fastest path to the given destination from the given source, it is calculated
+using the A* algorithm which uses an additional heuristic in the consideration of the 'best' node to use next"""
 
 def heuristic(lon1, lat1, lon2, lat2):
   #Haversine used as the heuristic
@@ -16,8 +16,13 @@ def heuristic(lon1, lat1, lon2, lat2):
 
   return distance
 
-def AStar(graph,start,end,end_lat,end_lon):
-
+def AStar(graph,start,end,end_lat,end_lon,mode="Eco"):
+  if mode=="Eco":
+    w1=0.88
+    w2=0.12
+  else:
+    w1=0.93
+    w2=0.07
   eco_dict={"Car":118,"Mrt":13,"Bus":73}
 
   heap = minheap.MinHeap()
@@ -53,15 +58,14 @@ def AStar(graph,start,end,end_lat,end_lon):
         # Illegal route since it's a one-way street, so ignore
         continue
 
-      #Additional computation of heuristic(Euclidean dist between neighbour node and distance between end node)
       node_data = graph.nodes[neighbor]["pos"]
       latitude,longitude=node_data[0],node_data[1]
 
       heu = heuristic(longitude, latitude, end_lon, end_lat)
       total_distance = distance_dict[current_node][0] + edge_weight + heu
       neighbour_distance=distance_dict[neighbor][0]+distance_dict[neighbor][1]
-      eco_total_distance=0.95*(total_distance)+0.05*eco_dict[edge_transportation]
-      eco_neighbour_distance=0.95*(neighbour_distance)+0.05*eco_dict.get(distance_dict[neighbor][2],1)
+      eco_total_distance=w1*(total_distance)+w2*eco_dict[edge_transportation]
+      eco_neighbour_distance=w1*(neighbour_distance)+w2*eco_dict.get(distance_dict[neighbor][2],1)
 
       # Check if the total distance travelled is less than actual distance + heuristic of the neighbour node
       if eco_total_distance < eco_neighbour_distance:
@@ -71,10 +75,18 @@ def AStar(graph,start,end,end_lat,end_lon):
 
   path = []
   current_node = end
+  total_carbon=0
 
   while current_node:
     path.append(current_node)
+    curr_dist=distance_dict[current_node][0]
+    curr_transportation=distance_dict[current_node][2]
     current_node = prev_dict[current_node]
+    if current_node is None:
+      break
+    curr_dist=curr_dist-distance_dict[current_node][0]
+    total_carbon+=curr_dist*eco_dict[curr_transportation]
+
 
   path.reverse()
-  return (path,round(distance_dict[end][0],5))
+  return (path,round(distance_dict[end][0],5),total_carbon)

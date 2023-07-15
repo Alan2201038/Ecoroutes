@@ -3,7 +3,7 @@ import pickle
 import requests
 import networkx as nx
 from geopy.geocoders import Nominatim
-from GraphFindingAlgos import AStar,AStar_Car
+from GraphFindingAlgos import AStar,AStar_Single
 import math
 
 
@@ -60,15 +60,25 @@ else:
             if "oneway" in element["tags"]:
                 oneway = element["tags"]["oneway"]
                 if oneway == "yes":
-                    # Add backwards connection for graphfinding algo to ignore illegal edges
-                    #node index 0 will always be the FROM, index 1 is TO
-                    node1 = node_ids[0]
-                    node2 = node_ids[1]
-                    lat1, lon1 = graph.nodes[node1]['pos']
-                    lat2, lon2 = graph.nodes[node2]['pos']
-                    dist = haversine(lon1, lat1, lon2, lat2)
+                    # Add oneway connection into graph to account for oneway streets
+                    for i in range(len(node_ids) - 1):
+                        node1 = node_ids[i]
+                        node2 = node_ids[i + 1]
+                        lat1, lon1 = graph.nodes[node1]['pos']
+                        lat2, lon2 = graph.nodes[node2]['pos']
+                        dist = haversine(lon1, lat1, lon2, lat2)
 
-                    graph.add_edge(node2, node1, weight=dist,direction='backward')
+                        graph.add_edge(node1, node2, weight=dist)
+                else:
+                    for i in range(len(node_ids) - 1):
+                        node1 = node_ids[i]
+                        node2 = node_ids[i + 1]
+                        lat1, lon1 = graph.nodes[node1]['pos']
+                        lat2, lon2 = graph.nodes[node2]['pos']
+                        dist = haversine(lon1, lat1, lon2, lat2)
+
+                        graph.add_edge(node1, node2, weight=dist)
+                        graph.add_edge(node2, node1, weight=dist)
             else:
                 # Add bidirectional edge
                 for i in range(len(node_ids) - 1):
@@ -79,14 +89,15 @@ else:
                     dist = haversine(lon1, lat1, lon2, lat2)
 
                     graph.add_edge(node1, node2, weight=dist)
-                    graph.add_edge(node2, node1, weight=dist, direction='both')
+                    graph.add_edge(node2, node1, weight=dist)
 
     with open(pfile, "wb") as f:
         pickle.dump(graph, f)
-
 #Latitude,Longitude
-source = (1.4293057,103.8351806)
-destination = (1.3509128,103.8479885)
+#source = (1.4293057,103.8351806)#yishun
+#destination = (1.3509128,103.8479885)#bishan
+source=(1.4293057,103.8351806)
+destination=(1.3573089,103.9883592)
 source_node = None
 destination_node = None
 src_acc = 0.010
@@ -106,7 +117,6 @@ for node_id, attributes in graph.nodes(data=True):
         min_dist_des = temp2
 while(source_node==None):
     src_acc+=0.001
-    print("src")
     for node_id, attributes in graph.nodes(data=True):
         lat, lon = attributes["pos"]
         temp1 = haversine(lon, lat, source[1], source[0])
@@ -115,7 +125,6 @@ while(source_node==None):
             min_dist_src = temp1
 while(destination_node==None):
     des_acc+=0.001
-    print("des")
     for node_id, attributes in graph.nodes(data=True):
         lat, lon = attributes["pos"]
         temp2 = haversine(lon, lat, destination[1], destination[0])
@@ -124,15 +133,14 @@ while(destination_node==None):
             min_dist_des = temp2
 
 
-shortest_path= AStar_Car.AStar(graph, source_node, destination_node, destination[0], destination[1])
-#print("Shortest path:", shortest_path)
+shortest_path= AStar_Single.AStar(graph, source_node, destination_node, destination[0], destination[1])
+print("Shortest path:", shortest_path)
 geolocator = Nominatim(user_agent="ecoroutes_test")
 for n in shortest_path[0]:
     node_data = graph.nodes[n]["pos"]
     latitude,longitude = node_data[0], node_data[1]
     location = geolocator.reverse((latitude, longitude), exactly_one=True)
     print("Location name:", location.address)
-    print("NodeID",n)
     print("Coordinate:",latitude,longitude)
 
 
