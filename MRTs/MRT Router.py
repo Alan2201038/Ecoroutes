@@ -133,7 +133,7 @@ def astar(start, goal):
     return None, float('inf')
 
 
-path,total_distance = GraphFindingAlgos.AStar.AStar(G, 'YISHUN MRT STATION', 'BISHAN MRT STATION', 1.2766, 103.8458)
+path,total_distance = GraphFindingAlgos.AStar.AStar(G, 'YISHUN MRT STATION', 'CHANGI AIRPORT MRT STATION', 1.2766, 103.8458)
 
 #path, total_distance = astar('WOODLANDS MRT STATION', 'BUGIS MRT STATION')
 print(" -> ".join(path))
