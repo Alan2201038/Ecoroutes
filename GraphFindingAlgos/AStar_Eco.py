@@ -20,9 +20,12 @@ def AStar(graph,start,end,end_lat,end_lon,mode="Eco"):
   if mode=="Eco":
     w1=0.88
     w2=0.12
-  else:
+  elif mode=="Best":
     w1=0.93
     w2=0.07
+  elif mode=="Fastest":
+    w1=1.00
+    w2=0.00
   eco_dict={"Car":118,"Mrt":13,"Bus":73}
 
   heap = minheap.MinHeap()
@@ -40,6 +43,10 @@ def AStar(graph,start,end,end_lat,end_lon,mode="Eco"):
   heap.insert((start, 0,0))
   while not heap.check_empty():
     current_node, current_distance,est_dist = heap.get_root()
+    if current_node==3893909401:
+      print("FML")
+    if current_node==6191064918:
+      print("CUNT work")
 
     if current_node == end:  #Reached the target node
       break
@@ -78,6 +85,8 @@ def AStar(graph,start,end,end_lat,end_lon,mode="Eco"):
   total_carbon=0
 
   while current_node:
+    if current_node in path:
+      print(current_node)
     path.append(current_node)
     curr_dist=distance_dict[current_node][0]
     curr_transportation=distance_dict[current_node][2]

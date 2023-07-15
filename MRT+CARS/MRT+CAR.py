@@ -4,8 +4,8 @@ import requests
 import matplotlib.pyplot as plt
 import networkx as nx
 from geopy.geocoders import Nominatim
-from GraphFindingAlgos import AStar, Dijkstra
-from GraphFindingAlgos import AStar_Eco
+
+from GraphFindingAlgos import AStar_Eco,AStar_Single
 import math
 import folium
 import pandas as pd
@@ -236,6 +236,35 @@ for mrt_stns, nodeid in matches.items():
         edge_data = (mrt_Graph.get_edge_data(mrt_stns, neighbor)['weight']) / 1000
         car_Graph.add_edge(nodeid, matches[neighbor], weight=edge_data, transportation="Mrt",direction='both')
 for stn in df_list:
-    if stn['Name']=="KHATIB MRT STATION":
+    if stn['Name']=="FERNVALE LRT STATION":
         des_lat,des_lon=stn["Lat"],stn["Lon"]
-path, total_distance = AStar_CarMRT.AStar(car_Graph, matches['YISHUN MRT STATION'], matches['KHATIB MRT STATION'],des_lat,des_lon)
+print("Starting1")
+path, total_distance,carbon = AStar_Eco.AStar(car_Graph,matches['KHATIB MRT STATION'],matches['FERNVALE LRT STATION'],des_lat,des_lon)
+print("Starting2")
+bestp,bestd,bestc=AStar_Eco.AStar(car_Graph,matches['KHATIB MRT STATION'],matches['FERNVALE LRT STATION'],des_lat,des_lon,mode="Best")
+print("Starting3")
+fastp,fastd,fastc=AStar_Eco.AStar(car_Graph,matches['KHATIB MRT STATION'],matches['FERNVALE LRT STATION'],des_lat,des_lon,mode="Fastest")
+
+geolocator = Nominatim(user_agent="ecoroutes_test")
+print("====================================================================")
+for n in path:
+    node_data = car_Graph.nodes[n]["pos"]
+    latitude,longitude = node_data[0], node_data[1]
+    location = geolocator.reverse((latitude, longitude), exactly_one=True)
+    print("Location name:", location.address)
+    print("Coordinate:",latitude,longitude)
+print("====================================================================")
+for n in bestp:
+    node_data = car_Graph.nodes[n]["pos"]
+    latitude,longitude = node_data[0], node_data[1]
+    location = geolocator.reverse((latitude, longitude), exactly_one=True)
+    print("Location name:", location.address)
+    print("Coordinate:",latitude,longitude)
+print("====================================================================")
+for n in fastp:
+    node_data = car_Graph.nodes[n]["pos"]
+    latitude,longitude = node_data[0], node_data[1]
+    location = geolocator.reverse((latitude, longitude), exactly_one=True)
+    print("Location name:", location.address)
+    print("Coordinate:",latitude,longitude)
+print("====================================================================")

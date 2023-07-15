@@ -3,7 +3,7 @@ import pickle
 import requests
 import networkx as nx
 from geopy.geocoders import Nominatim
-from GraphFindingAlgos import AStar,AStar_Single
+from GraphFindingAlgos import AStar_Eco,AStar_Single
 import math
 
 
@@ -96,8 +96,8 @@ else:
 #Latitude,Longitude
 #source = (1.4293057,103.8351806)#yishun
 #destination = (1.3509128,103.8479885)#bishan
-source=(1.4293057,103.8351806)
-destination=(1.3573089,103.9883592)
+source=(1.4173472,103.8329743)
+destination=(1.4050934,103.9085724)
 source_node = None
 destination_node = None
 src_acc = 0.010
@@ -134,15 +134,18 @@ while(destination_node==None):
 
 
 shortest_path= AStar_Single.AStar(graph, source_node, destination_node, destination[0], destination[1])
+eco_path=AStar_Eco.AStar(graph,source_node,destination_node,destination[0],destination[1])
 print("Shortest path:", shortest_path)
 geolocator = Nominatim(user_agent="ecoroutes_test")
-for n in shortest_path[0]:
+test=[8620920513,
+3893909401,
+6191064918]
+for n in test:
     node_data = graph.nodes[n]["pos"]
     latitude,longitude = node_data[0], node_data[1]
     location = geolocator.reverse((latitude, longitude), exactly_one=True)
     print("Location name:", location.address)
     print("Coordinate:",latitude,longitude)
-
 
 # # Draw the graph
 # plt.figure(figsize=(10, 10))
