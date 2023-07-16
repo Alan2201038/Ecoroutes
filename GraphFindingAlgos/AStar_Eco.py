@@ -67,8 +67,8 @@ def AStar(graph,start,end,end_lat,end_lon,mode="Eco"):
       total_distance = distance_dict[current_node][0] + edge_weight + heu
       neighbour_distance=distance_dict[neighbor][0]+distance_dict[neighbor][1]
       if w2 !=0.00:
-        eco_total_distance=w1*(total_distance)+w2*eco_dict[edge_transportation]
-        eco_neighbour_distance=w1*(neighbour_distance)+w2*eco_dict.get(distance_dict[neighbor][2],1)
+        eco_total_distance=w1*(total_distance)+w2*(eco_dict[edge_transportation]*total_distance)
+        eco_neighbour_distance=w1*(neighbour_distance)+w2*(eco_dict.get(distance_dict[neighbor][2],1)*neighbour_distance)
 
         # Check if the total distance travelled is less than actual distance + heuristic of the neighbour node
         if eco_total_distance < eco_neighbour_distance:

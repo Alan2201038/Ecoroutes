@@ -57,7 +57,7 @@ else:
     response = requests.get("https://overpass-api.de/api/interpreter", params={"data": overpass_query})
 
     data = response.json()
-    car_Graph = nx.DiGraph()
+    car_Graph = nx.MultiDiGraph()
     # First pass to add all nodes to graph as there might be cases where the edges come before the nodes
     for element in data["elements"]:
         if element["type"] == "node":
