@@ -46,7 +46,7 @@ else:
     response = requests.get("https://overpass-api.de/api/interpreter", params={"data": overpass_query})
 
     data = response.json()
-    graph = nx.DiGraph()
+    graph = nx.MultiDiGraph()
     #First pass to add all nodes to graph as there might be cases where the edges come before the nodes
     for element in data["elements"]:
         if element["type"] == "node":
@@ -94,10 +94,8 @@ else:
     with open(pfile, "wb") as f:
         pickle.dump(graph, f)
 #Latitude,Longitude
-#source = (1.4293057,103.8351806)#yishun
-#destination = (1.3509128,103.8479885)#bishan
-source=(1.4173472,103.8329743)
-destination=(1.4050934,103.9085724)
+source = (1.4293057,103.8351806)#yishun
+destination = (1.3509128,103.8479885)#bishan
 source_node = None
 destination_node = None
 src_acc = 0.010
@@ -117,6 +115,7 @@ for node_id, attributes in graph.nodes(data=True):
         min_dist_des = temp2
 while(source_node==None):
     src_acc+=0.001
+    print("src")
     for node_id, attributes in graph.nodes(data=True):
         lat, lon = attributes["pos"]
         temp1 = haversine(lon, lat, source[1], source[0])
@@ -132,20 +131,9 @@ while(destination_node==None):
             destination_node = node_id
             min_dist_des = temp2
 
-
-shortest_path= AStar_Single.AStar(graph, source_node, destination_node, destination[0], destination[1])
 eco_path=AStar_Eco.AStar(graph,source_node,destination_node,destination[0],destination[1])
-print("Shortest path:", shortest_path)
-geolocator = Nominatim(user_agent="ecoroutes_test")
-test=[8620920513,
-3893909401,
-6191064918]
-for n in test:
-    node_data = graph.nodes[n]["pos"]
-    latitude,longitude = node_data[0], node_data[1]
-    location = geolocator.reverse((latitude, longitude), exactly_one=True)
-    print("Location name:", location.address)
-    print("Coordinate:",latitude,longitude)
+print(eco_path)
+
 
 # # Draw the graph
 # plt.figure(figsize=(10, 10))

@@ -57,7 +57,7 @@ else:
     response = requests.get("https://overpass-api.de/api/interpreter", params={"data": overpass_query})
 
     data = response.json()
-    car_Graph = nx.DiGraph()
+    car_Graph = nx.MultiDiGraph()
     # First pass to add all nodes to graph as there might be cases where the edges come before the nodes
     for element in data["elements"]:
         if element["type"] == "node":
@@ -71,15 +71,25 @@ else:
             if "oneway" in element["tags"]:
                 oneway = element["tags"]["oneway"]
                 if oneway == "yes":
-                    # Add backwards connection for graphfinding algo to ignore illegal edges
-                    # node index 0 will always be the FROM, index 1 is TO
-                    node1 = node_ids[0]
-                    node2 = node_ids[1]
-                    lat1, lon1 = car_Graph.nodes[node1]['pos']
-                    lat2, lon2 = car_Graph.nodes[node2]['pos']
-                    dist = haversine(lon1, lat1, lon2, lat2)
+                    # Add oneway connection into graph to account for oneway streets
+                    for i in range(len(node_ids) - 1):
+                        node1 = node_ids[i]
+                        node2 = node_ids[i + 1]
+                        lat1, lon1 = car_Graph.nodes[node1]['pos']
+                        lat2, lon2 = car_Graph.nodes[node2]['pos']
+                        dist = haversine(lon1, lat1, lon2, lat2)
 
-                    car_Graph.add_edge(node2, node1, weight=dist, direction='backward')
+                        car_Graph.add_edge(node1, node2, weight=dist)
+                else:
+                    for i in range(len(node_ids) - 1):
+                        node1 = node_ids[i]
+                        node2 = node_ids[i + 1]
+                        lat1, lon1 = car_Graph.nodes[node1]['pos']
+                        lat2, lon2 = car_Graph.nodes[node2]['pos']
+                        dist = haversine(lon1, lat1, lon2, lat2)
+
+                        car_Graph.add_edge(node1, node2, weight=dist)
+                        car_Graph.add_edge(node2, node1, weight=dist)
             else:
                 # Add bidirectional edge
                 for i in range(len(node_ids) - 1):
@@ -90,7 +100,7 @@ else:
                     dist = haversine(lon1, lat1, lon2, lat2)
 
                     car_Graph.add_edge(node1, node2, weight=dist)
-                    car_Graph.add_edge(node2, node1, weight=dist, direction='both')
+                    car_Graph.add_edge(node2, node1, weight=dist)
 
     with open(carGraph, "wb") as f:
         pickle.dump(car_Graph, f)
@@ -116,6 +126,7 @@ else:
 
     # Add a node for each station
     for index, row in df.iterrows():
+        stn_nos = row['STN_NO'].split('/')
         mrt_Graph.add_node(row['STN_NAME'], pos=(row['Latitude'], row['Longitude']))
 
     # Create a dictionary to store connections
@@ -234,37 +245,52 @@ for mrt_stns, nodeid in matches.items():
     neighbors = mrt_Graph.neighbors(mrt_stns)
     for neighbor in neighbors:
         edge_data = (mrt_Graph.get_edge_data(mrt_stns, neighbor)['weight']) / 1000
-        car_Graph.add_edge(nodeid, matches[neighbor], weight=edge_data, transportation="Mrt",direction='both')
+        car_Graph.add_edge(nodeid, matches[neighbor], weight=edge_data, transportation="Mrt")
+        car_Graph.add_edge(matches[neighbor],nodeid,weight=edge_data, transportation="Mrt")
 for stn in df_list:
     if stn['Name']=="FERNVALE LRT STATION":
         des_lat,des_lon=stn["Lat"],stn["Lon"]
-print("Starting1")
-path, total_distance,carbon = AStar_Eco.AStar(car_Graph,matches['KHATIB MRT STATION'],matches['FERNVALE LRT STATION'],des_lat,des_lon)
-print("Starting2")
-bestp,bestd,bestc=AStar_Eco.AStar(car_Graph,matches['KHATIB MRT STATION'],matches['FERNVALE LRT STATION'],des_lat,des_lon,mode="Best")
-print("Starting3")
-fastp,fastd,fastc=AStar_Eco.AStar(car_Graph,matches['KHATIB MRT STATION'],matches['FERNVALE LRT STATION'],des_lat,des_lon,mode="Fastest")
+result_2  = AStar_Eco.AStar(car_Graph,matches['ANG MO KIO MRT STATION'],matches['FERNVALE LRT STATION'],des_lat,des_lon,mode="Eco")
+result_best  = AStar_Eco.AStar(car_Graph,matches['ANG MO KIO MRT STATION'],matches['FERNVALE LRT STATION'],des_lat,des_lon,mode="Eco")
+result_fast  = AStar_Eco.AStar(car_Graph,matches['ANG MO KIO MRT STATION'],matches['FERNVALE LRT STATION'],des_lat,des_lon,mode="Eco")
+print(result_2)
+print(result_best)
+print(result_fast)
+
+
 
 geolocator = Nominatim(user_agent="ecoroutes_test")
-print("====================================================================")
-for n in path:
+for n in result_2[0]:
     node_data = car_Graph.nodes[n]["pos"]
     latitude,longitude = node_data[0], node_data[1]
     location = geolocator.reverse((latitude, longitude), exactly_one=True)
     print("Location name:", location.address)
     print("Coordinate:",latitude,longitude)
-print("====================================================================")
-for n in bestp:
-    node_data = car_Graph.nodes[n]["pos"]
-    latitude,longitude = node_data[0], node_data[1]
-    location = geolocator.reverse((latitude, longitude), exactly_one=True)
-    print("Location name:", location.address)
-    print("Coordinate:",latitude,longitude)
-print("====================================================================")
-for n in fastp:
-    node_data = car_Graph.nodes[n]["pos"]
-    latitude,longitude = node_data[0], node_data[1]
-    location = geolocator.reverse((latitude, longitude), exactly_one=True)
-    print("Location name:", location.address)
-    print("Coordinate:",latitude,longitude)
-print("====================================================================")
+# print("Starting2")
+# bestp,bestd,bestc=AStar_Eco.AStar(car_Graph,matches['KHATIB MRT STATION'],matches['LORONG CHUAN MRT STATION'],des_lat,des_lon,mode="Best")
+# print("Starting3")
+# fastp,fastd,fastc=AStar_Eco.AStar(car_Graph,matches['KHATIB MRT STATION'],matches['LORONG CHUAN MRT STATION'],des_lat,des_lon,mode="Fastest")
+
+
+# print("====================================================================")
+# for n in path:
+#     node_data = car_Graph.nodes[n]["pos"]
+#     latitude,longitude = node_data[0], node_data[1]
+#     location = geolocator.reverse((latitude, longitude), exactly_one=True)
+#     print("Location name:", location.address)
+#     print("Coordinate:",latitude,longitude)
+# print("====================================================================")
+# for n in bestp:
+#     node_data = car_Graph.nodes[n]["pos"]
+#     latitude,longitude = node_data[0], node_data[1]
+#     location = geolocator.reverse((latitude, longitude), exactly_one=True)
+#     print("Location name:", location.address)
+#     print("Coordinate:",latitude,longitude)
+# print("====================================================================")
+# for n in fastp:
+#     node_data = car_Graph.nodes[n]["pos"]
+#     latitude,longitude = node_data[0], node_data[1]
+#     location = geolocator.reverse((latitude, longitude), exactly_one=True)
+#     print("Location name:", location.address)
+#     print("Coordinate:",latitude,longitude)
+# print("====================================================================")
