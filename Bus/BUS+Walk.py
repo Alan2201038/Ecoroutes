@@ -5,117 +5,128 @@ import pandas as pd
 from geopy.distance import geodesic
 import requests
 import itertools
+import pickle
+import os
 
-print("Setting up...")
+picklename="Bus_Walk.pickle"
+if os.path.exists(picklename):
+    with open(picklename, "rb") as f:
+        graph = pickle.load(f)
+else:
 
-# Define the API endpoints
-bus_stops_url = "http://datamall2.mytransport.sg/ltaodataservice/BusStops"
-bus_routes_url = "http://datamall2.mytransport.sg/ltaodataservice/BusRoutes"
+    print("Setting up...")
 
-# Define the headers for the API request
-headers = {
-    "AccountKey": "nDR1RKXtRtOhzKfgXjcIyQ==",  # replace with your account key
-    "accept": "application/json"
-}
+    # Define the API endpoints
+    bus_stops_url = "http://datamall2.mytransport.sg/ltaodataservice/BusStops"
+    bus_routes_url = "http://datamall2.mytransport.sg/ltaodataservice/BusRoutes"
 
-# Function to handle paginated responses
-def fetch_data(url):
-    offset = 0
-    records = []
+    # Define the headers for the API request
+    headers = {
+        "AccountKey": "nDR1RKXtRtOhzKfgXjcIyQ==",  # replace with your account key
+        "accept": "application/json"
+    }
 
-    while True:
-        print(f"Fetching data from {url} with offset = {offset}...")
-        response = requests.get(f"{url}?$skip={offset}", headers=headers)
-        data = response.json()
+    # Function to handle paginated responses
+    def fetch_data(url):
+        offset = 0
+        records = []
 
-        records.extend(data['value'])
+        while True:
+            print(f"Fetching data from {url} with offset = {offset}...")
+            response = requests.get(f"{url}?$skip={offset}", headers=headers)
+            data = response.json()
 
-        if len(data['value']) < 500:
-            break
+            records.extend(data['value'])
 
-        offset += 500
+            if len(data['value']) < 500:
+                break
 
-    return records
+            offset += 500
 
-print("Fetching data from APIs...")
-bus_stops_data = fetch_data(bus_stops_url)
-bus_routes_data = fetch_data(bus_routes_url)
+        return records
 
-print("Processing data...")
+    print("Fetching data from APIs...")
+    bus_stops_data = fetch_data(bus_stops_url)
+    bus_routes_data = fetch_data(bus_routes_url)
 
-# Convert JSON to pandas DataFrame
-bus_stops = pd.json_normalize(bus_stops_data).set_index('BusStopCode')
-bus_routes = pd.json_normalize(bus_routes_data)
+    print("Processing data...")
 
-# Check if bus stop exists in bus stop data
-bus_routes = bus_routes[bus_routes['BusStopCode'].isin(bus_stops.index)]
+    # Convert JSON to pandas DataFrame
+    bus_stops = pd.json_normalize(bus_stops_data).set_index('BusStopCode')
+    bus_routes = pd.json_normalize(bus_routes_data)
 
-# Add latitude and longitude to bus_routes from bus_stops
-bus_routes = bus_routes.join(bus_stops[['Latitude', 'Longitude']], on='BusStopCode')
+    # Check if bus stop exists in bus stop data
+    bus_routes = bus_routes[bus_routes['BusStopCode'].isin(bus_stops.index)]
 
-# Define your places
-place = "Singapore"
+    # Add latitude and longitude to bus_routes from bus_stops
+    bus_routes = bus_routes.join(bus_stops[['Latitude', 'Longitude']], on='BusStopCode')
 
-WALKING_SPEED = 5
-BUS_SPEED = 30
-TRANSFER_PENALTY = 15  # Changed to 15 minutes to better reflect actual transfer times
+    # Define your places
+    place = "Singapore"
 
-print("Building walking graph...")
-# Construct a graph for the walking paths
-G_walk = ox.graph_from_place(place, network_type='walk', simplify=False)
-G_walk = nx.MultiDiGraph(G_walk)
+    WALKING_SPEED = 5
+    BUS_SPEED = 30
+    TRANSFER_PENALTY = 15  # Changed to 15 minutes to better reflect actual transfer times
 
-# Convert walking time to walking distance for edges
-for u, v, k, data in G_walk.edges(data=True, keys=True):
-    data['duration'] = data['length'] / (WALKING_SPEED * 1000 / 60)  # in minutes
+    print("Building walking graph...")
+    # Construct a graph for the walking paths
+    G_walk = ox.graph_from_place(place, network_type='walk', simplify=False)
+    G_walk = nx.MultiDiGraph(G_walk)
 
-print("Adding bus stop nodes to the walking graph...")
-# Add nodes for the bus stops to the walking graph and save the OSMnx node ids
-bus_stop_node_ids = {}
-for index, stop in bus_stops.iterrows():
-    node_id = ox.distance.nearest_nodes(G_walk, stop['Longitude'], stop['Latitude'])
-    G_walk.add_node(node_id, y=stop['Latitude'], x=stop['Longitude'])
-    bus_stop_node_ids[index] = node_id
+    # Convert walking time to walking distance for edges
+    for u, v, k, data in G_walk.edges(data=True, keys=True):
+        data['duration'] = data['length'] / (WALKING_SPEED * 1000 / 60)  # in minutes
 
-print("Building bus routes graph...")
-# Construct a graph for the bus routes
-G_bus = nx.MultiDiGraph()
+    print("Adding bus stop nodes to the walking graph...")
+    # Add nodes for the bus stops to the walking graph and save the OSMnx node ids
+    bus_stop_node_ids = {}
+    for index, stop in bus_stops.iterrows():
+        node_id = ox.distance.nearest_nodes(G_walk, stop['Longitude'], stop['Latitude'])
+        G_walk.add_node(node_id, y=stop['Latitude'], x=stop['Longitude'])
+        bus_stop_node_ids[index] = node_id
 
-# Add nodes and edges to the bus graph
-for index, stop in bus_routes.iterrows():
-    if stop['BusStopCode'] in bus_stop_node_ids:
-        node_id = bus_stop_node_ids[stop['BusStopCode']]
-        G_bus.add_node(node_id, y=stop['Latitude'], x=stop['Longitude'])
+    print("Building bus routes graph...")
+    # Construct a graph for the bus routes
+    G_bus = nx.MultiDiGraph()
 
-for service in bus_routes['ServiceNo'].unique():
-    for direction in [1, 2]:
-        service_stops = bus_routes[
-            (bus_routes['ServiceNo'] == service) & (bus_routes['Direction'] == direction)].sort_values('StopSequence')
-        for (_, stop1), (_, stop2) in zip(service_stops.iterrows(), service_stops.iloc[1:].iterrows()):
-            if stop1['BusStopCode'] in bus_stop_node_ids and stop2['BusStopCode'] in bus_stop_node_ids:
-                node1 = bus_stop_node_ids[stop1['BusStopCode']]
-                node2 = bus_stop_node_ids[stop2['BusStopCode']]
-                distance = stop2['Distance'] - stop1['Distance']  # Use the difference in the 'Distance' fields
-                time = distance / (BUS_SPEED * 1000 / 60)  # in minutes
-                G_bus.add_edge(node1, node2, duration=time)
+    # Add nodes and edges to the bus graph
+    for index, stop in bus_routes.iterrows():
+        if stop['BusStopCode'] in bus_stop_node_ids:
+            node_id = bus_stop_node_ids[stop['BusStopCode']]
+            G_bus.add_node(node_id, y=stop['Latitude'], x=stop['Longitude'])
 
-print("Combining graphs...")
-# Construct a combined graph
-G_combined = nx.compose(G_walk, G_bus)
+    for service in bus_routes['ServiceNo'].unique():
+        for direction in [1, 2]:
+            service_stops = bus_routes[
+                (bus_routes['ServiceNo'] == service) & (bus_routes['Direction'] == direction)].sort_values('StopSequence')
+            for (_, stop1), (_, stop2) in zip(service_stops.iterrows(), service_stops.iloc[1:].iterrows()):
+                if stop1['BusStopCode'] in bus_stop_node_ids and stop2['BusStopCode'] in bus_stop_node_ids:
+                    node1 = bus_stop_node_ids[stop1['BusStopCode']]
+                    node2 = bus_stop_node_ids[stop2['BusStopCode']]
+                    distance = stop2['Distance'] - stop1['Distance']  # Use the difference in the 'Distance' fields
+                    time = distance / (BUS_SPEED * 1000 / 60)  # in minutes
+                    G_bus.add_edge(node1, node2, duration=time)
 
-# Add edges for getting on/off the bus
-for node in G_combined.nodes():
-    if isinstance(node, tuple) and G_walk.has_node(node[0]):
-        for neighbor in G_walk.neighbors(node[0]):
-            G_combined.add_edge(node, neighbor, key=f"walk_{node}_{neighbor}",
-                                duration=G_walk[node[0]][neighbor][0]['duration'])
-        for neighbor in G_bus.neighbors(node):
-            G_combined.add_edge(node, neighbor, key=f"bus_{node}_{neighbor}",
-                                duration=G_bus[node][neighbor]['duration'] + TRANSFER_PENALTY)
+    print("Combining graphs...")
+    # Construct a combined graph
+    G_combined = nx.compose(G_walk, G_bus)
 
-print("Intersection of walking and bus nodes:")
-intersection = set(G_walk.nodes()).intersection(set(G_bus.nodes()))
-print(intersection)
+    # Add edges for getting on/off the bus
+    for node in G_combined.nodes():
+        if isinstance(node, tuple) and G_walk.has_node(node[0]):
+            for neighbor in G_walk.neighbors(node[0]):
+                G_combined.add_edge(node, neighbor, key=f"walk_{node}_{neighbor}",
+                                    duration=G_walk[node[0]][neighbor][0]['duration'])
+            for neighbor in G_bus.neighbors(node):
+                G_combined.add_edge(node, neighbor, key=f"bus_{node}_{neighbor}",
+                                    duration=G_bus[node][neighbor]['duration'] + TRANSFER_PENALTY)
+
+    print("Intersection of walking and bus nodes:")
+    intersection = set(G_walk.nodes()).intersection(set(G_bus.nodes()))
+    print(intersection)
+
+    with open(picklename, "wb") as f:
+        pickle.dump(G_combined, f)
 
 # Define your start and end coordinates
 start_coord = (1.3151, 103.7649)  # Clementi Mall
