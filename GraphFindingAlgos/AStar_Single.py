@@ -52,11 +52,9 @@ def AStar(graph,start,end,end_lat,end_lon,transportation="Car"):
     for neighbor in neighbors:
       edge_data = graph.get_edge_data(current_node, neighbor)  # Get the edge data between current_node and neighbor
       edge_weight = edge_data.get('weight', float('inf'))
-      edge_direction = edge_data.get('direction', 'both')  # Get the direction attribute of the edge
-
-      if edge_direction == 'backward':
-        #Illegal route since it's a one-way street, so ignore
+      if neighbor in visited:
         continue
+
 
       node_data = graph.nodes[neighbor]["pos"]
       latitude,longitude=node_data[0],node_data[1]

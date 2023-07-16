@@ -88,52 +88,9 @@ def dist(a, b):
     (x2, y2) = G.nodes[b]['pos']
     return geodesic((x1, y1), (x2, y2)).m
 
-#A* algo
-
-def astar(start, goal):
-    def heuristic(a, b):
-        (x1, y1) = G.nodes[a]['pos']
-        (x2, y2) = G.nodes[b]['pos']
-        return geodesic((x1, y1), (x2, y2)).m
-
-    def reconstruct_path(came_from, current):
-        path = [current]
-        while current in came_from:
-            current = came_from[current]
-            path.append(current)
-        path.reverse()
-        return path
-
-    closed_set = set()
-    open_set = set([start])
-    came_from = {}
-    g_score = {node: float('inf') for node in G.nodes}
-    g_score[start] = 0
-    f_score = {node: float('inf') for node in G.nodes}
-    f_score[start] = heuristic(start, goal)
-
-    while open_set:
-        current = min(open_set, key=lambda node: f_score[node])
-        if current == goal:
-            return reconstruct_path(came_from, current), g_score[goal]
-
-        open_set.remove(current)
-        closed_set.add(current)
-
-        for neighbor in G.neighbors(current):
-            tentative_g_score = g_score[current] + G.edges[current, neighbor]['weight']
-            if neighbor in closed_set and tentative_g_score >= g_score[neighbor]:
-                continue
-            if neighbor not in open_set or tentative_g_score < g_score[neighbor]:
-                came_from[neighbor] = current
-                g_score[neighbor] = tentative_g_score
-                f_score[neighbor] = g_score[neighbor] + heuristic(neighbor, goal)
-                open_set.add(neighbor)
-
-    return None, float('inf')
 
 
-path,total_distance = GraphFindingAlgos.AStar.AStar(G, 'YIO CHU KANG MRT STATION', 'DAMAI LRT STATION',1.4050934,103.9085724)
+path,total_distance = GraphFindingAlgos.AStar.AStar(G, 'KHATIB MRT STATION', 'YIO CHU KANG MRT STATION',1.4050934,103.9085724)
 
 #path, total_distance = astar('WOODLANDS MRT STATION', 'BUGIS MRT STATION')
 print(" -> ".join(path))
