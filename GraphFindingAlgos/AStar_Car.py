@@ -16,14 +16,11 @@ def heuristic(lon1, lat1, lon2, lat2):
 
   return distance
 
-def AStar(graph,start,end,end_lat,end_lon,transportation="Car"):
+def AStar(graph,start,end):
 
-  if transportation=="Car":
-    co2=118
-  elif transportation=="Bus":
-    co2=73
-  elif transportation=="Mrt":
-    co2=13
+  co2 = 118
+  end_lat = graph.nodes[end]["pos"][0]
+  end_lon = graph.nodes[end]["pos"][1]
 
   heap = minheap.MinHeap()
   visited = set()

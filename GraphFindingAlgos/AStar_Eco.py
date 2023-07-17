@@ -16,7 +16,10 @@ def heuristic(lon1, lat1, lon2, lat2):
 
   return distance
 
-def AStar(graph,start,end,end_lat,end_lon,mode="Eco"):
+def AStar(graph,start,end,mode="Eco"):
+
+  end_lat = graph.nodes[end]["pos"][0]
+  end_lon = graph.nodes[end]["pos"][1]
 
   if mode=="Eco":
     w1=0.88
@@ -27,18 +30,18 @@ def AStar(graph,start,end,end_lat,end_lon,mode="Eco"):
   elif mode=="Fastest":
     w1=1.00
     w2=0.00
-  eco_dict={"Car":118,"Mrt":13,"Bus":73}
+  eco_dict={"MRT":18.05,"bus":36.5}
 
   heap = minheap.MinHeap()
   visited = set()
-  distance_dict={}#Keeps track of the shortest path of vertex from the start node,heuristic cost and type of transport
+  time_dict={}#Keeps track of the shortest path of vertex from the start node,heuristic cost and type of transport
   prev_dict={}#Keeps track of the shortest previous node
   prev_dict[start]=None
   for node in graph.nodes:
     if node == start:
-      distance_dict[node] = (0,0,"Null")
+      time_dict[node] = (0,0,"Null")
     else:
-      distance_dict[node] = (float('inf'),float('inf'),"Null")
+      time_dict[node] = (float('inf'),float('inf'),"Null")
 
 
   heap.insert((start, 0,0))
@@ -55,8 +58,9 @@ def AStar(graph,start,end,end_lat,end_lon,mode="Eco"):
     neighbors = graph.neighbors(current_node)
     for neighbor in neighbors:
       edge_data = graph.get_edge_data(current_node, neighbor)  # Get the edge data between current_node and neighbor
-      edge_weight = edge_data.get('weight', float('inf'))
-      edge_transportation=edge_data.get('transportation','Car')
+      edge_weight = edge_data.get('duration', float('inf'))
+      edge_transportation=edge_data.get('key','')[:3]
+
       if neighbor in visited:
         continue
 
@@ -64,20 +68,20 @@ def AStar(graph,start,end,end_lat,end_lon,mode="Eco"):
       latitude,longitude=node_data[0],node_data[1]
 
       heu = heuristic(longitude, latitude, end_lon, end_lat)
-      total_distance = distance_dict[current_node][0] + edge_weight + heu
-      neighbour_distance=distance_dict[neighbor][0]+distance_dict[neighbor][1]
+      total_distance = time_dict[current_node][0] + edge_weight + heu
+      neighbour_distance=time_dict[neighbor][0]+time_dict[neighbor][1]
       if w2 !=0.00:
         eco_total_distance=w1*(total_distance)+w2*(eco_dict[edge_transportation]*total_distance)
-        eco_neighbour_distance=w1*(neighbour_distance)+w2*(eco_dict.get(distance_dict[neighbor][2],1)*neighbour_distance)
+        eco_neighbour_distance=w1*(neighbour_distance)+w2*(eco_dict.get(time_dict[neighbor][2],1)*neighbour_distance)
 
         # Check if the total distance travelled is less than actual distance + heuristic of the neighbour node
         if eco_total_distance < eco_neighbour_distance:
-          distance_dict[neighbor] = (total_distance - heu, heu, edge_transportation)
+          time_dict[neighbor] = (total_distance - heu, heu, edge_transportation)
           prev_dict[neighbor] = current_node
           heap.insert((neighbor, eco_total_distance, heu))
       else:
         if total_distance <neighbour_distance:
-          distance_dict[neighbor]=(total_distance-heu,heu,edge_transportation)
+          time_dict[neighbor]=(total_distance-heu,heu,edge_transportation)
           prev_dict[neighbor]=current_node
           heap.insert((neighbor,total_distance,heu))
 
@@ -87,14 +91,14 @@ def AStar(graph,start,end,end_lat,end_lon,mode="Eco"):
 
   while current_node:
     path.append(current_node)
-    curr_dist=distance_dict[current_node][0]
-    curr_transportation=distance_dict[current_node][2]
+    curr_time=time_dict[current_node][0]
+    curr_transportation=time_dict[current_node][2]
     current_node = prev_dict[current_node]
     if current_node is None:
       break
-    curr_dist=curr_dist-distance_dict[current_node][0]
-    total_carbon+=curr_dist*eco_dict[curr_transportation]
+    curr_time=curr_time-time_dict[current_node][0]
+    total_carbon+=curr_time*eco_dict[curr_transportation]
 
 
   path.reverse()
-  return (path,round(distance_dict[end][0],5),total_carbon)
+  return (path,round(time_dict[end][0],5),total_carbon)
