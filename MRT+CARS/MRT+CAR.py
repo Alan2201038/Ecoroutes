@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from geopy.geocoders import Nominatim
 
-from GraphFindingAlgos import AStar_Eco,AStar_Single
+from GraphFindingAlgos import AStar_Eco,AStar_Car
 import math
 import folium
 import pandas as pd
