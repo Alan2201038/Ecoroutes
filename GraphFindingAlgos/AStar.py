@@ -1,3 +1,4 @@
+#Base A* Algorithm where heuristic is the weight
 import math
 
 from GraphFindingAlgos import minheap

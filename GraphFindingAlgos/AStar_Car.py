@@ -1,3 +1,4 @@
+#AStar algorithm, the heuristic used for this would be the haversine distance from one node to the end node.
 
 import math
 
@@ -16,9 +17,11 @@ def heuristic(lon1, lat1, lon2, lat2):
 
   return distance
 
-def AStar(graph,start,end,end_lat,end_lon):
+def AStar(graph,start,end):
 
   co2=118
+  end_lat=graph.nodes[end]["pos"][0]
+  end_lon=graph.nodes[end]["pos"][1]
 
   heap = minheap.MinHeap()
   visited = set()

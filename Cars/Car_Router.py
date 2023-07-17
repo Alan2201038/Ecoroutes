@@ -34,7 +34,7 @@ print(node_source)
 # Find the shortest path between the source and target nodes
 
 #shortest_path=nx.shortest_path(graph, node_source, node_target, weight='length')
-shortest_path=AStar_Single.AStar(graph,node_source,node_target,destination[0],destination[1])
+shortest_path=AStar_Car.AStar(graph,node_source,node_target)
 
 # Print the shortest path
 print("Shortest path:", shortest_path)
