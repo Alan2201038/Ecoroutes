@@ -15,6 +15,7 @@ if os.path.exists(mrtGraph):
 else:
     # Load the MRT station data
     df = pd.read_csv('MRT Stations.csv')
+    df_time=pd.read_csv('sbst.csv')
 
     # Create an empty graph
     G = nx.Graph()
