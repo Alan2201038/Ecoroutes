@@ -1,7 +1,7 @@
 import os
 import pickle
 import networkx as nx
-from GraphFindingAlgos import AStar_Single
+from GraphFindingAlgos import AStar_Car
 
 import osmnx as ox
 from geopy.geocoders import Nominatim
