@@ -1,9 +1,10 @@
-import osmnx as ox
-import networkx as nx
-from geopy.geocoders import Nominatim
-from GraphFindingAlgos import AStar_Single
 import os
 import pickle
+import networkx as nx
+from GraphFindingAlgos import AStar_Single
+
+import osmnx as ox
+from geopy.geocoders import Nominatim
 
 pfile="car_graph.pickle"
 
@@ -32,7 +33,7 @@ print(node_source)
 
 # Find the shortest path between the source and target nodes
 
-#shortest_path_correct = nx.shortest_path(graph, node_source, node_target, weight='length') Library function (Remove)
+#shortest_path=nx.shortest_path(graph, node_source, node_target, weight='length')
 shortest_path=AStar_Single.AStar(graph,node_source,node_target,destination[0],destination[1])
 
 # Print the shortest path

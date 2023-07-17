@@ -51,7 +51,7 @@ def AStar(graph,start,end,end_lat,end_lon,transportation="Car"):
     neighbors = graph.neighbors(current_node)
     for neighbor in neighbors:
       edge_data = graph.get_edge_data(current_node, neighbor)  # Get the edge data between current_node and neighbor
-      edge_weight = edge_data.get('weight', float('inf'))
+      edge_weight = edge_data[0].get('length', float('inf'))
       if neighbor in visited:
         continue
 
