@@ -1,9 +1,11 @@
+#OUTDATED DELTE LTR
+
 import os
 import pickle
 import requests
 import networkx as nx
 from geopy.geocoders import Nominatim
-from GraphFindingAlgos import AStar_Eco,AStar_Single
+from GraphFindingAlgos import AStar_Eco,AStar_Car
 import math
 
 
