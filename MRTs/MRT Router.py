@@ -11,10 +11,8 @@ mrtGraph= "MRT_Pickle_Graph"
 if os.path.exists(mrtGraph):
     with open(mrtGraph, "rb") as f:
         G = pickle.load(f)
-        print("True")
 else:
     # Load the MRT station data
-
 
     df = pd.read_csv('..\\Data\\MRT Stations.csv')
     df_timing=pd.read_csv('..\\Data\\mrt_time.csv')
@@ -83,11 +81,12 @@ else:
     # Manually add edges for Bukit Panjang and Senja
     G.add_edge('BUKIT PANJANG MRT STATION', 'SENJA LRT STATION', weight=geodesic(G.nodes['BUKIT PANJANG MRT STATION']['pos'], G.nodes['SENJA LRT STATION']['pos']).m)
 
+    G.add_edge('HILLVIEW MRT STATION','BEAUTY WORLD MRT STATION',weight=geodesic(G.nodes['HILLVIEW MRT STATION']['pos'], G.nodes['BEAUTY WORLD MRT STATION']['pos']).m)
+
     for index, row in df_timing.iterrows():
         start_node = row['Start']
         end_node = row['End']
         duration = row['Duration']
-
         if G.has_edge(start_node, end_node):
             G.edges[start_node, end_node]['duration'] = duration
             G.edges[start_node,end_node]['key']=f"MRT_{start_node}_{end_node}"
@@ -97,10 +96,9 @@ else:
     with open(mrtGraph, "wb") as f:
         pickle.dump(G, f)
 
-print(len(G.nodes))
 
 #path,total_distance = GraphFindingAlgos.AStar.AStar(G, 'KHATIB MRT STATION', 'YIO CHU KANG MRT STATION',1.4050934,103.9085724)
-path_v=AStar_Eco.AStar(G, 'KHATIB MRT STATION', 'CHANGI AIRPORT MRT STATION')
+path_v=AStar_Eco.AStar(G, 'KHATIB MRT STATION', 'YISHUN MRT STATION')
 print(path_v)
 #
 # #path, total_distance = astar('WOODLANDS MRT STATION', 'BUGIS MRT STATION')
