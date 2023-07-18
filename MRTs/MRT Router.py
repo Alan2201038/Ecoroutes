@@ -100,7 +100,7 @@ else:
 print(len(G.nodes))
 
 #path,total_distance = GraphFindingAlgos.AStar.AStar(G, 'KHATIB MRT STATION', 'YIO CHU KANG MRT STATION',1.4050934,103.9085724)
-path_v=AStar_Eco.AStar(G, 'KHATIB MRT STATION', 'YIO CHU KANG MRT STATION')
+path_v=AStar_Eco.AStar(G, 'KHATIB MRT STATION', 'CHANGI AIRPORT MRT STATION')
 print(path_v)
 #
 # #path, total_distance = astar('WOODLANDS MRT STATION', 'BUGIS MRT STATION')
