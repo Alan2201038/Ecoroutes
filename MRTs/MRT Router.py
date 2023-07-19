@@ -6,7 +6,7 @@ import pickle
 import os
 from GraphFindingAlgos import AStar_Eco
 
-mrtGraph= "MRT_Pickle_Graph"
+mrtGraph= "..\\Data\\MRT_Pickle_Graph"
 
 if os.path.exists(mrtGraph):
     with open(mrtGraph, "rb") as f:

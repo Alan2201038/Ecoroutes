@@ -8,7 +8,7 @@ import itertools
 import pickle
 import os
 
-picklename="Bus_Walk.pickle"
+picklename="..\\Data\\Bus_Walk.pickle"
 if os.path.exists(picklename):
     with open(picklename, "rb") as f:
         G_combined = pickle.load(f)
