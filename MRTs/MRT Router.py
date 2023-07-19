@@ -18,7 +18,7 @@ else:
     df_timing=pd.read_csv('..\\Data\\mrt_time.csv')
 
     # Create an empty graph
-    G = nx.Graph()
+    G = nx.MultiDiGraph()
 
 # Helper function to split station number into prefix and numeric part
     def split_stn_no(stn_no):
@@ -53,7 +53,9 @@ else:
             num1, node1 = stns[i]
             num2, node2 = stns[i+1]
             if abs(num1 - num2) == 1:
-                G.add_edge(node1, node2, weight=geodesic(G.nodes[node1]['pos'], G.nodes[node2]['pos']).m)
+                dist=geodesic(G.nodes[node1]['pos'], G.nodes[node2]['pos']).m
+                G.add_edge(node1, node2,weight=dist)
+                G.add_edge(node2,node1,weight=dist)
 
 
     # Manually add edges for Punggol and Sengkang to their connected LRT stations
@@ -66,30 +68,67 @@ else:
     G.add_edge('SENGKANG MRT STATION', 'COMPASSVALE LRT STATION', weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['COMPASSVALE LRT STATION']['pos']).m)
     G.add_edge('SENGKANG MRT STATION', 'RANGGUNG LRT STATION', weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['RANGGUNG LRT STATION']['pos']).m)
 
-    # Manually add edges for Yew Tee and Kranji
+    G.add_edge('SAM KEE LRT STATION', 'PUNGGOL MRT STATION',
+               weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['SAM KEE LRT STATION']['pos']).m)
+
+    G.add_edge('SOO TECK LRT STATION', 'PUNGGOL MRT STATION',
+               weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['SOO TECK LRT STATION']['pos']).m)
+
+    G.add_edge('COVE LRT STATION', 'PUNGGOL MRT STATION',
+               weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['COVE LRT STATION']['pos']).m)
+
+    G.add_edge('DAMAI LRT STATION', 'PUNGGOL MRT STATION',
+               weight=geodesic(G.nodes['PUNGGOL MRT STATION']['pos'], G.nodes['DAMAI LRT STATION']['pos']).m)
+
+    G.add_edge('CHENG LIM LRT STATION', 'SENGKANG MRT STATION',
+               weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['CHENG LIM LRT STATION']['pos']).m)
+
+    G.add_edge('RENJONG LRT STATION', 'SENGKANG MRT STATION',
+               weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['RENJONG LRT STATION']['pos']).m)
+
+    G.add_edge('COMPASSVALE LRT STATION', 'SENGKANG MRT STATION',
+               weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['COMPASSVALE LRT STATION']['pos']).m)
+
+    G.add_edge('RANGGUNG LRT STATION', 'SENGKANG MRT STATION',
+               weight=geodesic(G.nodes['SENGKANG MRT STATION']['pos'], G.nodes['RANGGUNG LRT STATION']['pos']).m)
+
+
     G.add_edge('YEW TEE MRT STATION', 'KRANJI MRT STATION', weight=geodesic(G.nodes['YEW TEE MRT STATION']['pos'], G.nodes['KRANJI MRT STATION']['pos']).m)
+    G.add_edge('KRANJI MRT STATION', 'YEW TEE MRT STATION',
+               weight=geodesic(G.nodes['YEW TEE MRT STATION']['pos'], G.nodes['KRANJI MRT STATION']['pos']).m)
 
-    # Manually add edges for Caldecott and Botanic Gardens
     G.add_edge('CALDECOTT MRT STATION', 'BOTANIC GARDENS MRT STATION', weight=geodesic(G.nodes['CALDECOTT MRT STATION']['pos'], G.nodes['BOTANIC GARDENS MRT STATION']['pos']).m)
+    G.add_edge('BOTANIC GARDENS MRT STATION', 'CALDECOTT MRT STATION',
+               weight=geodesic(G.nodes['CALDECOTT MRT STATION']['pos'],
+                               G.nodes['BOTANIC GARDENS MRT STATION']['pos']).m)
 
-    # Manually add edges for Caldecott and Stevens
     G.add_edge('CALDECOTT MRT STATION', 'STEVENS MRT STATION', weight=geodesic(G.nodes['CALDECOTT MRT STATION']['pos'], G.nodes['STEVENS MRT STATION']['pos']).m)
+    G.add_edge('STEVENS MRT STATION', 'CALDECOTT MRT STATION',
+               weight=geodesic(G.nodes['CALDECOTT MRT STATION']['pos'], G.nodes['STEVENS MRT STATION']['pos']).m)
 
-    # Manually add edges for Marina Bay and Gardens By The Bay
     G.add_edge('MARINA BAY MRT STATION', 'GARDENS BY THE BAY MRT STATION', weight=geodesic(G.nodes['MARINA BAY MRT STATION']['pos'], G.nodes['GARDENS BY THE BAY MRT STATION']['pos']).m)
+    G.add_edge('GARDENS BY THE BAY MRT STATION', 'MARINA BAY MRT STATION',
+               weight=geodesic(G.nodes['MARINA BAY MRT STATION']['pos'],
+                               G.nodes['GARDENS BY THE BAY MRT STATION']['pos']).m)
 
-    # Manually add edges for Bukit Panjang and Senja
+
     G.add_edge('BUKIT PANJANG MRT STATION', 'SENJA LRT STATION', weight=geodesic(G.nodes['BUKIT PANJANG MRT STATION']['pos'], G.nodes['SENJA LRT STATION']['pos']).m)
+    G.add_edge('SENJA LRT STATION', 'BUKIT PANJANG MRT STATION',
+               weight=geodesic(G.nodes['BUKIT PANJANG MRT STATION']['pos'], G.nodes['SENJA LRT STATION']['pos']).m)
 
     G.add_edge('HILLVIEW MRT STATION','BEAUTY WORLD MRT STATION',weight=geodesic(G.nodes['HILLVIEW MRT STATION']['pos'], G.nodes['BEAUTY WORLD MRT STATION']['pos']).m)
+    G.add_edge('BEAUTY WORLD MRT STATION', 'HILLVIEW MRT STATION',
+               weight=geodesic(G.nodes['HILLVIEW MRT STATION']['pos'], G.nodes['BEAUTY WORLD MRT STATION']['pos']).m)
 
     for index, row in df_timing.iterrows():
         start_node = row['Start']
         end_node = row['End']
         duration = row['Duration']
         if G.has_edge(start_node, end_node):
-            G.edges[start_node, end_node]['duration'] = duration
-            G.edges[start_node,end_node]['key']=f"MRT_{start_node}_{end_node}"
+            G.edges[start_node, end_node,0]['duration'] = duration
+            G.edges[start_node,end_node,0]['key']=f"MRT_{start_node}_{end_node}"
+            G.edges[end_node, start_node,0]['duration'] = duration
+            G.edges[end_node, start_node,0]['key'] = f"MRT_{end_node}_{start_node}"
         else:
             print(f"Warning: No edge found between {start_node} and {end_node}")
 
@@ -97,6 +136,8 @@ else:
         pickle.dump(G, f)
 
 
+print(G.nodes)
+print(len(G.edges))
 #path,total_distance = GraphFindingAlgos.AStar.AStar(G, 'KHATIB MRT STATION', 'YIO CHU KANG MRT STATION',1.4050934,103.9085724)
 path_v=AStar_Eco.AStar(G, 'KHATIB MRT STATION', 'YISHUN MRT STATION')
 print(path_v)

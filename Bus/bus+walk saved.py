@@ -106,6 +106,7 @@ else:
                     distance = stop2['Distance'] - stop1['Distance']  # Use the difference in the 'Distance' fields
                     time = distance / (BUS_SPEED * 1000 / 60)  # in minutes
                     G_bus.add_edge(node1, node2, duration=time)
+    print(G_bus.nodes)
 
     print("Combining graphs...")
     # Construct a combined graph
@@ -127,6 +128,8 @@ else:
 
     with open(picklename, "wb") as f:
         pickle.dump(G_combined, f)
+
+
 
 # Define your start and end coordinates
 start_coord = (1.3166, 103.76393)  # My house

@@ -47,7 +47,7 @@ def AStar(graph,start,end,mode="Eco"):
       if neighbor in visited:
         continue
 
-      edge_data = graph.get_edge_data(current_node, neighbor)  # Get the edge data between current_node and neighbor
+      edge_data = graph.get_edge_data(current_node, neighbor)[0]  # Get the edge data between current_node and neighbor
       edge_weight = edge_data.get('duration', float('inf'))
       edge_transportation=edge_data.get('key','')[:3]
 
