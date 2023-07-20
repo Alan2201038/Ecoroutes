@@ -48,7 +48,7 @@ def AStar(graph,start,end):
     neighbors = graph.neighbors(current_node)
     for neighbor in neighbors:
       edge_data = graph.get_edge_data(current_node, neighbor)  # Get the edge data between current_node and neighbor
-      edge_weight = edge_data[0].get('length', float('inf'))
+      edge_weight = (edge_data[0].get('length', float('inf')))/1000 #convert m to km.
       if neighbor in visited:
         continue
 
