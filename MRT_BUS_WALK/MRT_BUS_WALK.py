@@ -24,10 +24,16 @@ if os.path.exists(mrtGraph) and os.path.exists(buswalkGraph):
     combined_G=nx.compose(mrt_G,buswalk_G)
 
 for node in buswalk_G.nodes():
-    neighbors = buswalk_G.neighbors(node)
-    for neigbor in neighbors:
-        edge_data = buswalk_G.get_edge_data(node, neigbor)[
-            0]  # Get the edge data between current_node and neighbor
-        edge_weight = edge_data.get('duration', float('inf'))
-        edge_transportation = edge_data.get('key', '')[:3]
-        print(edge_data)
+    if isinstance(node,tuple):
+        neighbors = buswalk_G.neighbors(node)
+        for n in neighbors:
+            print(node)
+            edge_data = buswalk_G.get_edge_data(node, n)  # Get the edge data between current_node and neighbor
+            key = list(edge_data.keys())[1]
+            value = edge_data[key]
+            des= key.split('_')[-1]
+            src = key.split('_')[1]
+            transportation=key.split('_')[0]
+            print(transportation)
+            if transportation=="bus":
+                print("Works")
