@@ -23,6 +23,9 @@ if os.path.exists(mrtGraph) and os.path.exists(buswalkGraph):
         buswalk_G=pickle.load(f)
     combined_G=nx.compose(mrt_G,buswalk_G)
 
+print(len(combined_G.nodes))
+print(len(buswalk_G.nodes))
+
 for node in buswalk_G.nodes():
     if isinstance(node,tuple):
         neighbors = buswalk_G.neighbors(node)
