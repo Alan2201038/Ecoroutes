@@ -9,7 +9,7 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 # Add the parent directory to the Python path
 sys.path.append(parent_dir)
 
-import GraphFindingAlgos.AStar_Car as AStar_Car
+from GraphFindingAlgos import AStar_Car, Dijkstra
 
 import osmnx as ox
 from geopy.geocoders import Nominatim
@@ -52,4 +52,6 @@ shortest_distance=nx.shortest_path_length(graph, node_source, node_target, weigh
 print(shortest_path)
 print(shortest_distance)
 ASTAR=AStar_Car.AStar(graph,node_source,node_target)
+DJ = Dijkstra.dijkstra(graph,node_source,node_target)
 print(ASTAR)
+print(DJ)
