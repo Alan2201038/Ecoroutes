@@ -1,7 +1,15 @@
+import sys
 import os
 import pickle
 import networkx as nx
-from GraphFindingAlgos import AStar_Car
+
+# Get the absolute path to the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+# Add the parent directory to the Python path
+sys.path.append(parent_dir)
+
+import GraphFindingAlgos.AStar_Car as AStar_Car
 
 import osmnx as ox
 from geopy.geocoders import Nominatim

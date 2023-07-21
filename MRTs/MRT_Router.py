@@ -3,8 +3,16 @@ import networkx as nx
 from geopy.distance import geodesic
 import matplotlib.pyplot as plt
 import pickle
+import sys
 import os
-from GraphFindingAlgos import AStar_Eco
+
+# Get the absolute path to the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+# Add the parent directory to the Python path
+sys.path.append(parent_dir)
+
+import GraphFindingAlgos.AStar_Eco as AStar_Eco
 
 mrtGraph= "..\\Data\\MRT_Pickle_Graph"
 
@@ -139,7 +147,7 @@ else:
 print(G.nodes)
 print(len(G.edges))
 #path,total_distance = GraphFindingAlgos.AStar.AStar(G, 'KHATIB MRT STATION', 'YIO CHU KANG MRT STATION',1.4050934,103.9085724)
-path_v=AStar_Eco.AStar(G, 'KHATIB MRT STATION', 'YISHUN MRT STATION')
+path_v=AStar_Eco.AStar(G, 'SEMBAWANG MRT STATION', 'BISHAN MRT STATION')
 print(path_v)
 #
 # #path, total_distance = astar('WOODLANDS MRT STATION', 'BUGIS MRT STATION')
