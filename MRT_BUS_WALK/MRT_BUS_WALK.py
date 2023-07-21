@@ -1,6 +1,7 @@
 import pandas as pd
 import networkx as nx
 from geopy.distance import geodesic
+from geopy.geocoders import Nominatim
 import osmnx as ox
 import matplotlib.pyplot as plt
 import folium
@@ -15,11 +16,18 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
 
 from GraphFindingAlgos import AStar_Eco
+from GUI import Map as GUI
 
 mrtGraph= "..\\Data\\Pickle\\MRT_Graph.pickle"
 buswalkGraph="..\\Data\\Pickle\\Bus_Walk.pickle"
 combinedGraph="..\\Data\\Pickle\\Combined_Graph.pickle"
 WALKING_SPEED=5
+
+def round_coordinates(coord, precision=3):
+    factor = 10 ** precision
+    lat = math.floor(coord[0] * factor) / factor
+    lon = math.floor(coord[1] * factor) / factor
+    return lat, lon
 
 def haversine(lon1, lat1, lon2, lat2):
     #Haversine used as the heuristic
@@ -68,19 +76,92 @@ else:
         pickle.dump(combined_G, f)
 
 
-
-
-khatib=[1.41738337, 103.8329799]
+khatib=[1.33242473248, 103.777698548]
 src=ox.distance.nearest_nodes(buswalk_G, khatib[1], khatib[0])
 
-bishan=[1.350838988, 103.848144]
+bishan=[1.3152, 103.7652]
 des=ox.distance.nearest_nodes(buswalk_G, bishan[1], bishan[0])
-
-
 
 # Fast=AStar_Eco.AStar(combined_G,src, des,mode="Fastest")
 # Balanced=AStar_Eco.AStar(combined_G,src, des,mode="Balanced")
 Eco=AStar_Eco.AStar(combined_G,src, des)
 # print("Fastest",Fast)
 # print("Balanced",Balanced)
-print("Eco",Eco)
+# print("Eco",Eco)
+
+geolocator = Nominatim(user_agent="ecoroutes_test")
+coordinates = []
+mode_list = []
+# Reduced coordinates and mode_list
+reduced_coordinates = []
+reduced_mode_list = []
+
+count = 0
+for node in Eco[0]:
+    node_data = combined_G.nodes[node]
+
+    if 'pos' in node_data:
+        node_data['y'], node_data['x'] = node_data['pos']  # Extract 'pos' key and rename it as 'y' and 'x'
+
+    if isinstance(node, tuple):
+        node_data['mode'] = 'Bus'
+    elif isinstance(node, str):
+        node_data['mode'] = 'Train'
+    elif isinstance(node, int):
+        node_data['mode'] = 'Walk'
+
+    latitude, longitude, mode = node_data['y'], node_data['x'], node_data['mode']
+    location = geolocator.reverse((latitude, longitude), exactly_one=True)
+
+    # Print the location name
+    # print("Location name:", location.address)
+    coordinates.append((latitude, longitude))
+    mode_list.append(mode)
+    test = coordinates.copy()
+
+walk_only = []
+for position in range(len(mode_list)):
+    if mode_list[position] == 'Walk':
+        walk_only.append(coordinates[position])
+
+# Initialize variables to keep track of the previous mode and rounded coordinates
+prev_mode = None
+prev_rounded_coords = None
+
+# Manually iterating through the lists using indices
+for i in range(len(coordinates)):
+    coord = coordinates[i]
+    mode = mode_list[i]
+    
+    # Check if the mode is "Walk" and the next mode is also "Walk"
+    if mode == "Walk" and (prev_mode == "Walk" or i == len(coordinates) - 1):
+        # Round the coordinates down to 3 decimal places
+        rounded_coords = round_coordinates(coord)
+        
+        # Check if the rounded coordinates are the same as the previous rounded coordinates
+        if rounded_coords == prev_rounded_coords:
+            # Skip adding the coordinate to the reduced list
+            continue
+        
+        # Add the unique walking coordinate to the reduced list
+        reduced_coordinates.append(coord)
+        reduced_mode_list.append(mode)
+        
+        # Update the previous mode and rounded coordinates
+        prev_mode = mode
+        prev_rounded_coords = rounded_coords
+        
+    else:
+        # Add the non-walking coordinate to the reduced list
+        reduced_coordinates.append(coord)
+        reduced_mode_list.append(mode)
+        
+        # Update the previous mode and rounded coordinates
+        prev_mode = mode
+        prev_rounded_coords = round_coordinates(coord)
+
+# Print the reduced lists
+print(reduced_coordinates)
+print(reduced_mode_list)
+
+GUI.draw_test(reduced_coordinates, reduced_mode_list)
