@@ -3,12 +3,9 @@ import networkx as nx
 from geopy.distance import geodesic
 import osmnx as ox
 import matplotlib.pyplot as plt
-from GraphFindingAlgos import AStar_Eco
 import folium
 import pickle
 import os
-
-
 import math
 import sys
 # Get the absolute path to the parent directory
@@ -17,10 +14,11 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 # Add the parent directory to the Python path
 sys.path.append(parent_dir)
 
+from GraphFindingAlgos import AStar_Eco
 
-mrtGraph= "..\\Data\\MRT_Graph.pickle"
-buswalkGraph="..\\Data\\Bus_Walk.pickle"
-combinedGraph="..\\Data\\Combined_Graph.pickle"
+mrtGraph= "..\\Data\\Pickle\\MRT_Graph.pickle"
+buswalkGraph="..\\Data\\Pickle\\Bus_Walk.pickle"
+combinedGraph="..\\Data\\Pickle\\Combined_Graph.pickle"
 WALKING_SPEED=5
 
 def haversine(lon1, lat1, lon2, lat2):

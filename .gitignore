@@ -1,8 +1,7 @@
-/Bus/Bus_Walk.pickle
-/Bus/Bus_Walk.pickle
-/Bus/Bus_Graph.pickle
-/Bus/Bus_stop_dict.pickle
-/Bus/Walk_Graph.pickle
-/Data/Bus_Walk.pickle
-/Data/Combined_Graph.pickle
-/Data/MRT_Graph.pickle
+/__pycache__
+/Bus/cache
+/Cars/cache
+/Data/Pickle
+/GraphFindingAlgos/__pycache__
+/GUI/__pycache__
+/MRTs/__pycache__
