@@ -32,7 +32,7 @@ def dijkstra (graph,start,end):
       if not edge_data:
         continue
 
-      edge_weight = edge_data.get('weight', float('inf'))  # Use a default weight if 'length' attribute is missing
+      edge_weight = edge_data.get('length', float('inf'))  # Use a default weight if 'length' attribute is missing
       distance = distance_dict[current_node] + edge_weight
       if distance < distance_dict[neighbor]:
         distance_dict[neighbor] = distance
