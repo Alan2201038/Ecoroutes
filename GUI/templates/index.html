@@ -109,7 +109,41 @@
             </div>
         </div>
     </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Forward Geocoding API Endpoint
+        const accessKey = "ace67487c08a56119c53f586ecaf8e04";
+        const query = "Ngee Ann Polytechnic, SG";
+        const apiUrl = `http://api.positionstack.com/v1/forward?access_key=${accessKey}&query=${encodeURIComponent(query)}`;
+
+        // Make the API call using Fetch API
+        fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            // Process the API response
+            displayResults(data);
+        })
+        .catch(error => {
+            // Handle any errors that occurred during the API call
+            console.error("Error fetching data:", error);
+        });
+
+        // Function to display the API results
+        function displayResults(data) {
+        // Assuming the API returns an array of geocoding results
+        console.log(data);
+        // Process and display the data as needed
+        // For example, you can display the latitude and longitude of the first result:
+        if (data && data.data && data.data.length > 0) {
+            const firstResult = data.data[0];
+            const latitude = firstResult.latitude;
+            const longitude = firstResult.longitude;
+            const location = firstResult.name;
+            console.log(`Latitude: ${latitude}, Longitude: ${longitude}, Location: ${location}`);
+        }
+        }
+
+    </script>
 </body>
 
 </html>

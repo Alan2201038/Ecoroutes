@@ -13,8 +13,8 @@ def heuristic(time,transport,mode="Eco"):
     i1=0.93
     i2=0.07
   elif mode=="Eco":
-    i1=0.5
-    i2=0.5
+    i1=0.7
+    i2=0.3
   result=i1*time+i2*(time*eco_dict[transport])
   return result
 
