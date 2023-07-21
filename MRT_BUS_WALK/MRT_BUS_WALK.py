@@ -58,9 +58,11 @@ else:
             target_lat, target_lon = target_node['y'], target_node['x']
             dist = haversine(lon, lat, target_lon, target_lat)
             time_needed = (dist / WALKING_SPEED) * 60
-            print(time_needed)
             combined_G.add_edge(node, nearest_walk_bus_node, key=f"walk_{node}_{nearest_walk_bus_node}",
                                 duration=time_needed)
+            combined_G.add_edge(nearest_walk_bus_node,node,key=f"walk_{nearest_walk_bus_node}_{node}", duration=time_needed)
+            for n in combined_G.neighbors(node):
+                print(n)
 
     with open(combinedGraph, "wb") as f:
         pickle.dump(combined_G, f)
@@ -69,13 +71,16 @@ else:
 
 
 khatib=[1.41738337, 103.8329799]
-dest=ox.distance.nearest_nodes(buswalk_G, khatib[1], khatib[0])
-print(dest)
-bishan=[1.350838988, 103.848144]
-bishan=ox.distance.nearest_nodes(buswalk_G, bishan[1], bishan[0])
-print(bishan)
+src=ox.distance.nearest_nodes(buswalk_G, khatib[1], khatib[0])
 
-test=AStar_Eco.AStar(combined_G,dest, bishan)
-print(test)
-shortest_path=AStar_Eco.AStar(combined_G,'KHATIB MRT STATION', 'BISHAN MRT STATION')
-print(shortest_path)
+bishan=[1.350838988, 103.848144]
+des=ox.distance.nearest_nodes(buswalk_G, bishan[1], bishan[0])
+
+
+
+# Fast=AStar_Eco.AStar(combined_G,src, des,mode="Fastest")
+# Balanced=AStar_Eco.AStar(combined_G,src, des,mode="Balanced")
+Eco=AStar_Eco.AStar(combined_G,src, des)
+# print("Fastest",Fast)
+# print("Balanced",Balanced)
+print("Eco",Eco)

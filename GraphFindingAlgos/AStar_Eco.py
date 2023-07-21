@@ -6,12 +6,15 @@ using the A* algorithm which uses an additional heuristic in the consideration o
 
 def heuristic(time,transport,mode="Eco"):
   eco_dict = {"MRT": 18.05, "bus": 36.5,"wal":0}#Carbon emission per minute
-  if mode=="Eco":
-    i1=0.0
-    i2=1.0
+  if mode=="Fastest":
+    i1=1.0
+    i2=0
   elif mode=="Balanced":
     i1=0.93
     i2=0.07
+  elif mode=="Eco":
+    i1=0.5
+    i2=0.5
   result=i1*time+i2*(time*eco_dict[transport])
   return result
 
@@ -68,7 +71,7 @@ def AStar(graph,start,end,mode="Eco"):
 
       # total_time = time_dict[current_node][0] + edge_weight
       # neighbour_time=time_dict[neighbor][0]
-      heu = heuristic(edge_weight, edge_transportation, mode)
+      heu = heuristic(edge_weight, edge_transportation,mode=mode)
 
       total_value = time_dict[current_node][0] + heu+edge_weight
       neighbor_value = time_dict[neighbor][2]
