@@ -11,7 +11,6 @@ import folium
 import pandas as pd
 from geopy.distance import geodesic
 import time
-from mpl_toolkits.basemap import Basemap
 
 start_lat = 1.4293057
 start_lon = 103.8351806
@@ -76,7 +75,7 @@ graph.add_edge("Node10", "AMK", weight=amk_distance)
 
 # Add edges for the direct connection between start and end nodes
 direct_distance = haversine(start_lat, start_lon, amk_lat, amk_lon)
-graph.add_edge("Yishun", "AMK", weight=13.2675,transportation="Mrt")
+graph.add_edge("Yishun", "AMK", weight=15,transportation="Mrt")
 #graph.add_edge("Yishun", "AMK", weight=direct_distance)
 graph.add_edge("AMK", "Bishan", weight=2.4,transportation="Mrt")
 
@@ -86,46 +85,18 @@ print(graph.nodes(data=True))
 print("\nGraph edges:")
 print(graph.edges(data=True))
 
-map = Basemap(projection='merc', lat_0=(start_lat + end_lat) / 2, lon_0=(start_lon + end_lon) / 2,
-              llcrnrlat=min(start_lat, end_lat, amk_lat, *intermediate_latitudes) - 0.02,
-              llcrnrlon=min(start_lon, end_lon, amk_lon, *intermediate_longitudes) - 0.02,
-              urcrnrlat=max(start_lat, end_lat, amk_lat, *intermediate_latitudes) + 0.02,
-              urcrnrlon=max(start_lon, end_lon, amk_lon, *intermediate_longitudes) + 0.02)
 
-# Draw the map
-map.drawmapboundary(fill_color='black')
-map.fillcontinents(color='coral', lake_color='aqua')
-
-# Get the positions of the nodes on the map
-node_positions = {}
-for node in graph.nodes():
-    latitude = graph.nodes[node]['pos'][0]
-    longitude = graph.nodes[node]['pos'][1]
-    x, y = map(longitude, latitude)
-    node_positions[node] = (x, y)
 
 path=nx.astar_path(graph,"Yishun","Bishan",heuristic=heuristic, weight='weight')
 total_distance = nx.astar_path_length(graph, "Yishun", "Bishan", heuristic=heuristic, weight='weight')
 eco_path=AStar_Eco.AStar(graph,"Yishun","Bishan",end_lat,end_lon)
+fast_path=AStar_Eco.AStar(graph,"Yishun","Bishan",end_lat,end_lon,mode="Fastest")
 
 print("Fastest path from Yishun to Bishan:")
 print(path)
+print(fast_path)
 print(total_distance)
 print("Eco path from Yishun to Bishan:")
 print(eco_path)
-
-# Draw the nodes
-nx.draw_networkx_nodes(graph, node_positions, node_size=200, node_color='red')
-
-# Draw the edges
-nx.draw_networkx_edges(graph, node_positions, edge_color='blue')
-
-# Add labels to the nodes
-nx.draw_networkx_labels(graph, node_positions, font_color='white')
-
-# Show the plot
-plt.title("Graph Visualization")
-plt.axis('off')
-plt.show()
 
 

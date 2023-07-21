@@ -1,5 +1,7 @@
+#comment
 
 import math
+
 from GraphFindingAlgos import minheap
 
 
@@ -9,7 +11,7 @@ def heuristic(lon1, lat1, lon2, lat2):
   lon1, lat1, lon2, lat2 = map(math.radians, [lon1, lat1, lon2, lat2])
   dlon = lon2 - lon1
   dlat = lat2 - lat1
-  a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+  a = math.sin(dlat / 2)**  2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
   c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
   distance = radius * c
 
@@ -51,11 +53,11 @@ def AStar(graph,start,end,end_lat,end_lon):
 
       heu = heuristic(longitude, latitude, end_lon, end_lat)
       total_distance = distance_dict[current_node][0] + edge_weight + heu
-      #Check if the total distance travelled is less than actual distance + heuristic of the neighbour node
+
       if total_distance < distance_dict[neighbor][0]+distance_dict[neighbor][1]:
         distance_dict[neighbor] = (total_distance-heu, heu)
         prev_dict[neighbor] = current_node
-        heap.insert((neighbor, total_distance-heu, heu))
+        heap.insert((neighbor, total_distance, heu))
 
   path = []
   current_node = end

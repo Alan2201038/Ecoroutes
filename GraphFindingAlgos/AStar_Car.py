@@ -1,4 +1,4 @@
-
+#comment
 import math
 
 from GraphFindingAlgos import minheap
@@ -16,7 +16,11 @@ def heuristic(lon1, lat1, lon2, lat2):
 
   return distance
 
-def AStar(graph,start,end,end_lat,end_lon):
+def AStar(graph,start,end):
+
+  co2 = 118
+  end_lat = graph.nodes[end]["pos"][0]
+  end_lon = graph.nodes[end]["pos"][1]
 
   heap = minheap.MinHeap()
   visited = set()
@@ -44,31 +48,35 @@ def AStar(graph,start,end,end_lat,end_lon):
     neighbors = graph.neighbors(current_node)
     for neighbor in neighbors:
       edge_data = graph.get_edge_data(current_node, neighbor)  # Get the edge data between current_node and neighbor
-      edge_weight = edge_data.get('weight', float('inf'))
-      edge_direction = edge_data.get('direction', 'both')  # Get the direction attribute of the edge
-
-      if edge_direction == 'backward':
-        #Illegal route since it's a one-way street, so ignore
+      edge_weight = (edge_data[0].get('length', float('inf')))/1000 #convert m to km.
+      if neighbor in visited:
         continue
 
-      #Additional computation of heuristic(Euclidean dist between neighbour node and distance between end node)
+
       node_data = graph.nodes[neighbor]["pos"]
       latitude,longitude=node_data[0],node_data[1]
 
       heu = heuristic(longitude, latitude, end_lon, end_lat)
       total_distance = distance_dict[current_node][0] + edge_weight + heu
 
-      if total_distance < distance_dict[neighbor][0]:
+      # Check if the total distance travelled is less than actual distance + heuristic of the neighbour node
+      if total_distance < distance_dict[neighbor][0] + distance_dict[neighbor][1]:
         distance_dict[neighbor] = (total_distance-heu, heu)
         prev_dict[neighbor] = current_node
         heap.insert((neighbor, total_distance, heu))
 
   path = []
   current_node = end
+  total_carbon = 0
 
   while current_node:
     path.append(current_node)
+    curr_dist = distance_dict[current_node][0]
     current_node = prev_dict[current_node]
+    if current_node is None:
+      break
+    curr_dist=curr_dist-distance_dict[current_node][0]
+    total_carbon+=curr_dist*co2
 
   path.reverse()
-  return (path,round(distance_dict[end][0],5))
+  return (path,round(distance_dict[end][0],5),total_carbon)
