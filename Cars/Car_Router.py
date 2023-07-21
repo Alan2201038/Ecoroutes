@@ -1,7 +1,7 @@
 import os
 import pickle
 import networkx as nx
-from GraphFindingAlgos import AStar_Car
+from GraphFindingAlgos import AStar_Car,Dijkstra
 
 import osmnx as ox
 from geopy.geocoders import Nominatim
@@ -39,9 +39,11 @@ node_target = ox.distance.nearest_nodes(graph, destination[1], destination[0])
 
 # Find the shortest path between the source and target nodes
 
-shortest_path=nx.shortest_path(graph, node_source, node_target, weight='length')
-shortest_distance=nx.shortest_path_length(graph, node_source, node_target, weight='length')
-print(shortest_path)
-print(shortest_distance)
-ASTAR=AStar_Car.AStar(graph,node_source,node_target)
-print(ASTAR)
+# shortest_path=nx.shortest_path(graph, node_source, node_target, weight='length')
+# shortest_distance=nx.shortest_path_length(graph, node_source, node_target, weight='length')
+# print(shortest_path)
+# print(shortest_distance)
+# ASTAR=AStar_Car.AStar(graph,node_source,node_target)
+# print(ASTAR)
+asd_path=Dijkstra.dijkstra(graph,node_source,node_target)
+print(asd_path)
