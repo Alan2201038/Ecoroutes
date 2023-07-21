@@ -16,7 +16,7 @@ def heuristic(time,transport,mode="Eco"):
   return result
 
 def AStar(graph,start,end,mode="Eco"):
-  eco_dict = {"MRT": 18.05, "bus": 36.5}  # Carbon emission per minute
+  eco_dict = {"MRT": 18.05, "bus": 36.5,"wal":0}  # Carbon emission per minute
 
   heap = minheap.MinHeap()
   visited = set()
@@ -65,7 +65,6 @@ def AStar(graph,start,end,mode="Eco"):
         edge_transportation=edge_key[:3]
         edge_weight=edge_data[edge_key]['duration']
 
-      print("Working")
 
       # total_time = time_dict[current_node][0] + edge_weight
       # neighbour_time=time_dict[neighbor][0]

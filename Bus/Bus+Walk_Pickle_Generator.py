@@ -132,8 +132,8 @@ else:
 
 
 # Define your start and end coordinates
-start_coord = (1.3166, 103.76393)  # My house
-end_coord = (1.3548, 103.7763)  # Bukit Timah Hill
+start_coord = (1.41738337,103.8329799)  # My house
+end_coord = (1.350838988,103.848144)  # Bukit Timah Hill
 
 # Find the nearest nodes
 print("Finding nearest nodes...")

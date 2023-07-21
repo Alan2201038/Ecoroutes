@@ -36,6 +36,8 @@ def haversine(lon1, lat1, lon2, lat2):
 if os.path.exists(combinedGraph):
     with open(combinedGraph, "rb") as f:
         combined_G = pickle.load(f)
+    with open(buswalkGraph, "rb") as f:
+        buswalk_G = pickle.load(f)
 
 else:
     #Create combined graph if does not exist
@@ -48,10 +50,10 @@ else:
 
     for node in mrt_G.nodes():
         if "STATION" in node:
+            print(node)
             # MRT NODE
             lat, lon = mrt_G.nodes[node]['pos']
             nearest_walk_bus_node = ox.distance.nearest_nodes(buswalk_G, lon, lat)
-
             target_node = buswalk_G.nodes[nearest_walk_bus_node]
             target_lat, target_lon = target_node['y'], target_node['x']
             dist = haversine(lon, lat, target_lon, target_lat)
@@ -64,5 +66,16 @@ else:
         pickle.dump(combined_G, f)
 
 
+
+
+khatib=[1.41738337, 103.8329799]
+dest=ox.distance.nearest_nodes(buswalk_G, khatib[1], khatib[0])
+print(dest)
+bishan=[1.350838988, 103.848144]
+bishan=ox.distance.nearest_nodes(buswalk_G, bishan[1], bishan[0])
+print(bishan)
+
+test=AStar_Eco.AStar(combined_G,dest, bishan)
+print(test)
 shortest_path=AStar_Eco.AStar(combined_G,'KHATIB MRT STATION', 'BISHAN MRT STATION')
 print(shortest_path)
