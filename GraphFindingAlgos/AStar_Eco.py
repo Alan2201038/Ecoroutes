@@ -65,9 +65,7 @@ def AStar(graph,start,end,mode="Eco"):
         edge_transportation=edge_key[:3]
         edge_weight=edge_data[edge_key]['duration']
 
-      print(edge_data)
-      print(edge_weight)
-      print(edge_transportation)
+      print("Working")
 
       # total_time = time_dict[current_node][0] + edge_weight
       # neighbour_time=time_dict[neighbor][0]
