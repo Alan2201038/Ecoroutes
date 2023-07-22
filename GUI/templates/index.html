@@ -11,7 +11,7 @@
     <style>
         /* Added CSS styles for the map-container and its parent div */
         #map-container {
-            width: 100%;
+            width: 85%;
             height: 75%; /* Set the height to fill its parent's height */
         }
 
@@ -137,9 +137,18 @@
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Function to fetch the new merged CSV data from the server
-        function fetchMergedCsvData() {
-            return fetch('/get-merged-csv-data')
+        // Function to fetch the Mrt CSV data from the server
+        function fetchMRTData() {
+            return fetch('/get-mrt-data')
+                .then(response => response.json())
+                .catch(error => {
+                    console.error("Error fetching merged CSV data:", error);
+                });
+        };
+
+        // Function to fetch the Bus CSV data from the server
+        function fetchBusData() {
+            return fetch('/get-bus-data')
                 .then(response => response.json())
                 .catch(error => {
                     console.error("Error fetching merged CSV data:", error);
@@ -251,14 +260,24 @@
             const startInputElement = document.getElementById("startInput");
             const endInputElement = document.getElementById("endInput");
 
-            // Fetch the JSON data using the fetchMergedCsvData() function
-            const jsonData = await fetchMergedCsvData();
+            // Fetch the JSON data using the fetch[Mode]Data() function
+            const jsonDataMrt = await fetchMRTData();
+            const jsonDataBus = await fetchBusData();
+
+            // Extract the station names and bus stop codes from the jsonData array of objects
+            const stationNames = jsonDataMrt.map(item => item.STN_NAME);
+            const busStopCodes = jsonDataBus.map(item => item.BusStopCode);
+
+            // Combine both arrays into a single array
+            const combinedItems = [...stationNames, ...busStopCodes];
+
+            console.log(combinedItems);
 
             // Autocomplete for "Start" input
-            autocomplete(startInputElement, jsonData.map(item => item.STN_NAME));
+            autocomplete(startInputElement, combinedItems);
 
             // Autocomplete for "End" input
-            autocomplete(endInputElement, jsonData.map(item => item.STN_NAME));
+            autocomplete(endInputElement, combinedItems);
         }
 
         // Execute the setupAutocomplete function when the document is ready

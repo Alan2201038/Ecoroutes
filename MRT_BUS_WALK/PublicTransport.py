@@ -99,6 +99,18 @@ else:
         pickle.dump(combined_G, f)
 
 def Route(start, end):
+
+    value1 = start
+    value2 = end
+
+    for nodes in combined_G.nodes():
+        if isinstance(nodes,tuple):
+            value = nodes[1]
+            if value == value1:
+                start = nodes
+            elif value == value2:
+                end = nodes
+
     # start=ox.distance.nearest_nodes(buswalk_G, start[1], start[0])
 
     # end=[1.3152, 103.7652]

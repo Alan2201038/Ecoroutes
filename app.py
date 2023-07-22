@@ -35,11 +35,43 @@ def process():
 # Endpoint to serve the new merged CSV data as JSON
 @app.route('/get-merged-csv-data', methods=['GET'])
 def get_merged_csv_data():
-    with open('./Data/MRT Stations.csv', newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        data = [row for row in reader]
-    return jsonify(data)
+    # List to store the merged data from both CSV files
+    merged_data = []
 
+    # Read data from the first CSV file and add its first column to the merged list
+    with open('./Data/GUI/MRT Stations.csv', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row:  # Check if the row is not empty
+                merged_data.append(row)
+
+    with open('./Data/GUI/bus_stops.csv', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row:  # Check if the row is not empty
+                merged_data.append(row)
+
+    return jsonify(merged_data)
+
+@app.route('/get-mrt-data', methods=['GET'])
+def get_mrt_data():
+    # Read data from the first CSV file
+    with open('./Data/GUI/MRT Stations.csv', newline='') as csvfile:
+        mrt_reader = csv.DictReader(csvfile)
+        mrt_data = [row for row in mrt_reader]
+
+    # Return the MRT data as a JSON response
+    return jsonify(mrt_data)
+
+@app.route('/get-bus-data', methods=['GET'])
+def get_bus_data():
+    # Read data from the second CSV file
+    with open('./Data/GUI/bus_stops.csv', newline='') as csvfile:
+        bus_reader = csv.DictReader(csvfile)
+        bus_data = [row for row in bus_reader]
+
+    # Return the bus data as a JSON response
+    return jsonify(bus_data)
 
 
 if __name__ == '__main__':
