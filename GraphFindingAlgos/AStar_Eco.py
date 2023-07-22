@@ -10,11 +10,11 @@ def eco_friendliness(time,transportation,mode="Eco"):
     i1=1.0
     i2=0
   elif mode=="Balanced":
-    i1=0.93
-    i2=0.07
+    i1=0.75
+    i2=0.25
   elif mode=="Eco":
-    i1=0.5
-    i2=0.5
+    i1=0.6
+    i2=0.4
   result=i1*time+i2*(time*eco_dict[transportation])
   return result
 
@@ -116,8 +116,7 @@ def AStar(graph,start,end,mode="Eco"):
       heu2=est_time(longitude, latitude, end_lon, end_lat, edge_transportation)
       total_value=time_dict[current_node][0]+edge_weight+heu2+heu
       neighbor_value = time_dict[neighbor][2]
-      if edge_transportation=="bus":
-        total_value-=15 #Change edge transportation from
+
       if total_value < neighbor_value and walk_amt<10.00:
         time_dict[neighbor] = (total_value-heu2-heu, edge_transportation, total_value)
         prev_dict[neighbor] = current_node

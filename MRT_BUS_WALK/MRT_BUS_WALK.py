@@ -93,7 +93,7 @@ else:
         pickle.dump(combined_G, f)
 
 
-khatib=[1.417333, 103.832966]
+khatib=[1.436902, 103.786491]
 src=ox.distance.nearest_nodes(buswalk_G, khatib[1], khatib[0])
 
 bishan=[1.350840, 103.848172]
@@ -104,7 +104,25 @@ Balanced=AStar_Eco.AStar(combined_G,src, des,mode="Balanced")
 Eco=AStar_Eco.AStar(combined_G,src, des)
 # print("Fastest",Fast)
 # print("Balanced",Balanced)
-# print("Eco",Eco)
-print(Fast)
-print(Balanced)
-print(Eco)
+print("Fastest",Fast)
+print("Balanced",Balanced)
+print("Eco",Eco)
+
+# # assuming that Eco[0] is the list of nodes in the path from source to destination
+route_nodes = Eco[0]
+# convert the nodes into Lat and Long coordinates
+route_coords = []
+for node in route_nodes:
+    point = combined_G.nodes[node]
+    if "y" in point:
+        route_coords.append([point['y'], point['x']])
+    elif "pos" in point:
+        route_coords.append([point['pos'][0],point['pos'][1]])
+
+# Create a Map centered around the start point
+m = folium.Map(location=khatib, zoom_start=14)
+
+# Add a line to the map
+folium.PolyLine(route_coords, color="red", weight=2.5, opacity=1).add_to(m)
+
+m.save("Eco.html")
