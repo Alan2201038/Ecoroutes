@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import csv
 import folium
 from MRT_BUS_WALK import PublicTransport as PT
+from Cars import CarOnly as Car
 
 
 app = Flask(__name__, static_folder='GUI/static', template_folder='GUI/templates')
@@ -23,17 +24,58 @@ def process():
     # Get the inputs from the form
     start = request.form['start']
     end = request.form['end']
-    mode = request.form['mode']
     transport = request.form['transport']
 
-    print(start, end, mode, transport)
+    print(start, end, transport)
 
     # Step 5: Call the Python script with the inputs and get the result
     if transport == 'PT':
-        path = PT.Route(start, end, mode)
+        mode = request.form['mode']
+
+        time_taken, carbon_emission, path = PT.Route(start, end, mode)
+
+        print(time_taken, carbon_emission)
+
+    elif transport == 'Car':
+        if 'STATION' in start:
+            # Read data from the first CSV file and add its first column to the merged list
+            with open('./Data/GUI/MRT Stations.csv', newline='') as csvfile:
+                reader = csv.reader(csvfile)
+                for row in reader:
+                    if start in row[0]:  # Check if the row is not empty
+                        start_coordinates = (float(row[2]), float(row[3]))
+        else:
+            # Read data from the second CSV file
+            with open('./Data/GUI/bus_stops.csv', newline='') as csvfile:
+                reader = csv.reader(csvfile)
+                for row in reader:
+                    if start in row[0]:  # Check if the row is not empty
+                        start_coordinates = (float(row[2]), float(row[3]))
+
+        if 'STATION' in end:
+            # Read data from the first CSV file and add its first column to the merged list
+            with open('./Data/GUI/MRT Stations.csv', newline='') as csvfile:
+                reader = csv.reader(csvfile)
+                for row in reader:
+                    if end in row[0]:  # Check if the row is not empty
+                        end_coordinates = (float(row[2]), float(row[3]))
+        else:
+            # Read data from the second CSV file
+            with open('./Data/GUI/bus_stops.csv', newline='') as csvfile:
+                reader = csv.reader(csvfile)
+                for row in reader:
+                    if end in row[0]:  # Check if the row is not empty
+                        end_coordinates = (float(row[2]), float(row[3]))
+
+        time_taken, carbon_emission, path = Car.Route(start_coordinates, end_coordinates)
+
+        print(time_taken, carbon_emission)
+
+        
+    # print(path)
 
     # Return the result back to the HTML page
-    return render_template('index.html', path=path)
+    return render_template('index.html', path=path, time_taken=time_taken,carbon_emission=carbon_emission)
     # return jsonify({'path' : path})
 
 # Endpoint to serve the new merged CSV data as JSON

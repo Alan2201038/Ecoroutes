@@ -50,7 +50,7 @@
 
 <body>
     <nav class="navbar navbar-light navbar-expand-md">
-        <div class="container-fluid"><a class="navbar-brand" href="#">EcoRoutes</a></div>
+        <div class="container-fluid"><a class="navbar-brand" href="/">EcoRoutes</a></div>
     </nav>
     <main>
         <div class="container-fluid">
@@ -91,8 +91,20 @@
                             </div>
                         </div>
                     </div>
-                                <input type="submit" value="Let's Go!" style="margin-top: 10px;margin-bottom: 10px;" onclick="submitForm()">
-                            </form>
+                                <input type="submit" value="Let's Go!" style="margin-top: 10px;margin-bottom: 20px;" onclick="submitForm()">
+                            </form>            
+                                {% if time_taken and carbon_emission %}
+                                <div id="resultDiv" style="margin-top: 10px;">
+                                    <span>
+                                        <strong>TIME TAKEN :</strong> <u>{{ time_taken|round(2) }} minutes</u>
+                                    </span>
+                                </div>
+                                <div id="resultDiv" style="margin-top: 10px;">
+                                    <span>
+                                        <strong>CARBON EMISSION PRODUCED :</strong> <u>{{ carbon_emission|round(2) }} grams</u>
+                                    </span>
+                                </div>
+                                {% endif %}        
                     <div class="row" style="margin-bottom: 160px;"></div>
                 </div>
                 <div class="col-md-9 col-xl-10">

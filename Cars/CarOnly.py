@@ -2,7 +2,7 @@ import sys
 import os
 import pickle
 import networkx as nx
-
+import math
 # Get the absolute path to the parent directory
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -10,11 +10,17 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
 
 from GraphFindingAlgos import AStar_Car, Dijkstra
-
 import osmnx as ox
 from geopy.geocoders import Nominatim
+from GUI import Map as GUI
 
 pfile="car_graph.pickle"
+
+def round_coordinates(coord, precision=3):
+    factor = 10 ** precision
+    lat = math.floor(coord[0] * factor) / factor
+    lon = math.floor(coord[1] * factor) / factor
+    return lat, lon
 
 if os.path.exists(pfile):
     with open(pfile, "rb") as f:
@@ -29,29 +35,61 @@ else:
     with open(pfile, "wb") as f:
         pickle.dump(graph, f)
 
-A=4594224456
-B=244919173
-latitude_A, longitude_A = graph.nodes[A]['pos']
-latitude_B, longitude_B = graph.nodes[B]['pos']
+def Route(start, end):
 
-print (latitude_A,longitude_A)
-print(latitude_B,longitude_B)
+    print(start)
+    print(end)
+    # Specify the source and target nodes
+    node_source = ox.distance.nearest_nodes(graph, start[1], start[0])
+    node_target = ox.distance.nearest_nodes(graph, end[1], end[0])
 
-source = (1.4293057,103.8351806)#yishun
-destination = (1.3509128,103.8479885)#bishan
-# Specify the source and target nodes
-node_source = ox.distance.nearest_nodes(graph, source[1], source[0])
-node_target = ox.distance.nearest_nodes(graph, destination[1], destination[0])
+    ASTAR=AStar_Car.AStar(graph,node_source,node_target)
+    print(ASTAR)
 
+    geolocator = Nominatim(user_agent="ecoroutes_test")
+    coordinates = []
+    mode_list = []
+    reduced_coordinates = []
+    reduced_mode_list = []
+    for node in ASTAR[0]:
+        node_data = graph.nodes[node]
+        latitude, longitude = node_data['y'], node_data['x']
+        location = geolocator.reverse((latitude, longitude), exactly_one=True)
 
+        # Print the location name
+        # print("Location name:", location.address)
+        coordinates.append((latitude, longitude))
+        mode_list.append('Car')
 
-# Find the shortest path between the source and target nodes
+    # Initialize variables to keep track of the previous mode and rounded coordinates
+    prev_mode = None
+    prev_rounded_coords = None
 
-# shortest_path=nx.shortest_path(graph, node_source, node_target, weight='length')
-# shortest_distance=nx.shortest_path_length(graph, node_source, node_target, weight='length')
-# print(shortest_path)
-# print(shortest_distance)
-ASTAR=AStar_Car.AStar(graph,node_source,node_target)
-print(ASTAR)
-asd_path=Dijkstra.dijkstra(graph,node_source,node_target)
-print(asd_path)
+    for i in range(len(coordinates)):
+        coord = coordinates[i]
+        mode = mode_list[i]
+        
+        # Round the coordinates down to 3 decimal places
+        rounded_coords = round_coordinates(coord)
+
+        # Check if the rounded coordinates are the same as the previous rounded coordinates
+        if rounded_coords == prev_rounded_coords:
+            # Skip adding the coordinate to the reduced list
+            continue
+
+        # Add the non-walking coordinate to the reduced list
+        reduced_coordinates.append(coord)
+        reduced_mode_list.append(mode)
+        
+        # Update the previous mode and rounded coordinates
+        prev_mode = mode
+        prev_rounded_coords = rounded_coords
+        
+
+    # print(ASTAR)
+    # print(reduced_coordinates)
+    # print(reduced_mode_list)
+
+    return (ASTAR[1], ASTAR[2], GUI.draw_map(reduced_coordinates, reduced_mode_list))
+    # asd_path=Dijkstra.dijkstra(graph,node_source,node_target)
+    # print(asd_path)

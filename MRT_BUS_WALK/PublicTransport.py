@@ -111,6 +111,9 @@ def Route(start, end, mode):
             elif value == value2:
                 end = nodes
 
+    print("Start is " + str(start))
+    print("End is " + str(end))
+
     # start=ox.distance.nearest_nodes(buswalk_G, start[1], start[0])
 
     # end=[1.3152, 103.7652]
@@ -150,12 +153,6 @@ def Route(start, end, mode):
         # print("Location name:", location.address)
         coordinates.append((latitude, longitude))
         mode_list.append(mode)
-        test = coordinates.copy()
-
-    walk_only = []
-    for position in range(len(mode_list)):
-        if mode_list[position] == 'Walk':
-            walk_only.append(coordinates[position])
 
     # Initialize variables to keep track of the previous mode and rounded coordinates
     prev_mode = None
@@ -197,4 +194,4 @@ def Route(start, end, mode):
     print(reduced_coordinates)
     print(reduced_mode_list)
 
-    return GUI.draw_map(reduced_coordinates, reduced_mode_list)
+    return (Eco[1], Eco[2], GUI.draw_map(reduced_coordinates, reduced_mode_list))

@@ -60,6 +60,7 @@ def draw_map(path_list, mode_list):
     for mode in mode_list:
         if mode == 'Car':
             icon_list.append('car')
+            color_list.append('purple')
         elif mode == 'Train':
             icon_list.append('train')
             color_list.append('red')
