@@ -100,13 +100,9 @@ src=ox.distance.nearest_nodes(buswalk_G, khatib[1], khatib[0])
 bishan=[1.353968, 103.833820]
 des=ox.distance.nearest_nodes(buswalk_G, bishan[1], bishan[0])
 
-for nodes in combined_G.nodes():
-    if isinstance(nodes,tuple):
-        value1, value2 = nodes[1:]
-        if value1=="46529":
-            print(nodes)
 
 
+path=AStar_Eco.AStar(combined_G,"CLEMENTI MRT STATION","WOODLANDS MRT STATION",)
 
 
 # Fast=AStar_Eco.AStar(combined_G,src, des,mode="Fastest")

@@ -2,6 +2,7 @@ from GraphFindingAlgos import minheap
 
 
 def dijkstra (graph,start,end):
+  co2 = 118
 
   heap = minheap.MinHeap()
   visited = set()
@@ -41,11 +42,17 @@ def dijkstra (graph,start,end):
 
   path = []
   current_node = end
+  total_carbon=0
 
   while current_node:
     path.append(current_node)
+    curr_dist = distance_dict[current_node]
     current_node = prev_dict[current_node]
+    if current_node is None:
+      break
+    curr_dist = curr_dist - distance_dict[current_node]
+    total_carbon += curr_dist * co2
 
   path.reverse()
   return (path,round(distance_dict[end],5
-                     ))
+                     )/1000,total_carbon/1000)
