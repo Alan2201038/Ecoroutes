@@ -55,7 +55,7 @@ else:
         with open(buswalkGraph, "rb") as f:
             buswalk_G = pickle.load(f)
         combined_G = nx.compose(mrt_G, buswalk_G)
-
+    print("Creating edge to the nearest bus walk node")
     for node in mrt_G.nodes():
         if "STATION" in node:
             print(node)
@@ -69,99 +69,42 @@ else:
             combined_G.add_edge(node, nearest_walk_bus_node, key=f"walk_{node}_{nearest_walk_bus_node}",
                                 duration=time_needed)
             combined_G.add_edge(nearest_walk_bus_node,node,key=f"walk_{nearest_walk_bus_node}_{node}", duration=time_needed)
-            for n in combined_G.neighbors(node):
-                print(n)
+    print("Linking bus services to one another")
+    bus_stops_dict = {}
+    for nodes in combined_G.nodes():
+        if isinstance(nodes, tuple):
+            walking, busstop = nodes[:2]
+            if (walking, busstop) not in bus_stops_dict:
+                bus_stops_dict[(walking, busstop)] = []
+                bus_stops_dict[(walking, busstop)].append(nodes)
+            else:
+                bus_stops_dict[(walking, busstop)].append(nodes)
+
+    for key, values in bus_stops_dict.items():
+        for i in range(len(values)):
+            bus_node_A = values[i]
+            for j in range(i + 1, len(values)):
+                bus_node_B = values[j]
+                combined_G.add_edge(bus_node_A, bus_node_B, key=f"walk_{bus_node_A}_{bus_node_B}", duration=0)
+                combined_G.add_edge(bus_node_B, bus_node_A, key=f"walk_{bus_node_B}_{bus_node_A}", duration=0)
+
 
     with open(combinedGraph, "wb") as f:
         pickle.dump(combined_G, f)
 
 
-khatib=[1.33242473248, 103.777698548]
+khatib=[1.417333, 103.832966]
 src=ox.distance.nearest_nodes(buswalk_G, khatib[1], khatib[0])
 
-bishan=[1.3152, 103.7652]
+bishan=[1.350840, 103.848172]
 des=ox.distance.nearest_nodes(buswalk_G, bishan[1], bishan[0])
 
-# Fast=AStar_Eco.AStar(combined_G,src, des,mode="Fastest")
-# Balanced=AStar_Eco.AStar(combined_G,src, des,mode="Balanced")
+Fast=AStar_Eco.AStar(combined_G,src, des,mode="Fastest")
+Balanced=AStar_Eco.AStar(combined_G,src, des,mode="Balanced")
 Eco=AStar_Eco.AStar(combined_G,src, des)
 # print("Fastest",Fast)
 # print("Balanced",Balanced)
 # print("Eco",Eco)
-
-geolocator = Nominatim(user_agent="ecoroutes_test")
-coordinates = []
-mode_list = []
-# Reduced coordinates and mode_list
-reduced_coordinates = []
-reduced_mode_list = []
-
-count = 0
-for node in Eco[0]:
-    node_data = combined_G.nodes[node]
-
-    if 'pos' in node_data:
-        node_data['y'], node_data['x'] = node_data['pos']  # Extract 'pos' key and rename it as 'y' and 'x'
-
-    if isinstance(node, tuple):
-        node_data['mode'] = 'Bus'
-    elif isinstance(node, str):
-        node_data['mode'] = 'Train'
-    elif isinstance(node, int):
-        node_data['mode'] = 'Walk'
-
-    latitude, longitude, mode = node_data['y'], node_data['x'], node_data['mode']
-    location = geolocator.reverse((latitude, longitude), exactly_one=True)
-
-    # Print the location name
-    # print("Location name:", location.address)
-    coordinates.append((latitude, longitude))
-    mode_list.append(mode)
-    test = coordinates.copy()
-
-walk_only = []
-for position in range(len(mode_list)):
-    if mode_list[position] == 'Walk':
-        walk_only.append(coordinates[position])
-
-# Initialize variables to keep track of the previous mode and rounded coordinates
-prev_mode = None
-prev_rounded_coords = None
-
-# Manually iterating through the lists using indices
-for i in range(len(coordinates)):
-    coord = coordinates[i]
-    mode = mode_list[i]
-    
-    # Check if the mode is "Walk" and the next mode is also "Walk"
-    if mode == "Walk" and (prev_mode == "Walk" or i == len(coordinates) - 1):
-        # Round the coordinates down to 3 decimal places
-        rounded_coords = round_coordinates(coord)
-        
-        # Check if the rounded coordinates are the same as the previous rounded coordinates
-        if rounded_coords == prev_rounded_coords:
-            # Skip adding the coordinate to the reduced list
-            continue
-        
-        # Add the unique walking coordinate to the reduced list
-        reduced_coordinates.append(coord)
-        reduced_mode_list.append(mode)
-        
-        # Update the previous mode and rounded coordinates
-        prev_mode = mode
-        prev_rounded_coords = rounded_coords
-        
-    else:
-        # Add the non-walking coordinate to the reduced list
-        reduced_coordinates.append(coord)
-        reduced_mode_list.append(mode)
-        
-        # Update the previous mode and rounded coordinates
-        prev_mode = mode
-        prev_rounded_coords = round_coordinates(coord)
-
-# Print the reduced lists
-print(reduced_coordinates)
-print(reduced_mode_list)
-
-GUI.draw_test(reduced_coordinates, reduced_mode_list)
+print(Fast)
+print(Balanced)
+print(Eco)
