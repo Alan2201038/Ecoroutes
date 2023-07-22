@@ -32,7 +32,7 @@ def est_time(lon1, lat1, lon2, lat2, transportation):
   time_taken=(distance/speed[transportation])*60
   return time_taken
 
-def AStar(graph,start,end,mode="Eco"):
+def AStar(graph,start,end,mode):
   eco_dict = {"MRT": 18.05, "bus": 36.5,"walk":0}  # Carbon emission per minute
   end_values=graph.nodes[end]
 

@@ -23,14 +23,18 @@ def process():
     # Get the inputs from the form
     start = request.form['start']
     end = request.form['end']
+    mode = request.form['mode']
+    transport = request.form['transport']
 
-    print(start, end)
+    print(start, end, mode, transport)
 
     # Step 5: Call the Python script with the inputs and get the result
-    path = PT.Route(start, end)
+    if transport == 'PT':
+        path = PT.Route(start, end, mode)
 
     # Return the result back to the HTML page
     return render_template('index.html', path=path)
+    # return jsonify({'path' : path})
 
 # Endpoint to serve the new merged CSV data as JSON
 @app.route('/get-merged-csv-data', methods=['GET'])
