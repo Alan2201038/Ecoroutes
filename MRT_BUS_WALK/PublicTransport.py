@@ -97,10 +97,10 @@ else:
         pickle.dump(combined_G, f)
 
 def Route(start, end):
-    start=ox.distance.nearest_nodes(buswalk_G, start[1], start[0])
+    # start=ox.distance.nearest_nodes(buswalk_G, start[1], start[0])
 
     # end=[1.3152, 103.7652]
-    end=ox.distance.nearest_nodes(buswalk_G, end[1], end[0])
+    # end=ox.distance.nearest_nodes(buswalk_G, end[1], end[0])
 
     # Fast=AStar_Eco.AStar(combined_G,src, des,mode="Fastest")
     # Balanced=AStar_Eco.AStar(combined_G,src, des,mode="Balanced")
