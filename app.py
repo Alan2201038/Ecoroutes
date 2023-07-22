@@ -42,9 +42,9 @@ def process():
     if transport == 'PT':
         mode = request.form['mode']
 
-        time_taken, carbon_emission, path = PT.Route(start, end, mode)
+        time_taken, carbon_emission, path, process_time = PT.Route(start, end, mode)
 
-        print(time_taken, carbon_emission)
+        print(time_taken, carbon_emission, process_time)
 
     elif transport == 'Car':
         if 'STATION' in start:
@@ -77,15 +77,16 @@ def process():
                     if end in row[0]:  # Check if the row is not empty
                         end_coordinates = (float(row[2]), float(row[3]))
 
-        time_taken, carbon_emission, path = Car.Route(start_coordinates, end_coordinates)
+        time_taken, carbon_emission, path, process_time = Car.Route(start_coordinates, end_coordinates)
 
-        print(time_taken, carbon_emission)
+        print(time_taken, carbon_emission, process_time)
 
         
     # print(path)
 
     # Return the result back to the HTML page
-    return render_template('index.html', path=path, time_taken=time_taken,carbon_emission=carbon_emission, start_location=start_location, end_location=end_location)
+    return render_template('index.html', path=path, time_taken=time_taken,carbon_emission=carbon_emission, 
+                           start_location=start_location, end_location=end_location, process_time=process_time)
     # return jsonify({'path' : path})
 
 # Endpoint to serve the new merged CSV data as JSON

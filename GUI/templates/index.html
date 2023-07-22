@@ -67,12 +67,17 @@
                         </div>
                         <div id="resultDiv" style="margin-top: 10px;">
                             <span>
-                                <strong>TIME TAKEN :</strong> <u>{{ time_taken|round(2) }} minutes</u>
+                                <strong>TIME TAKEN :</strong> {{ time_taken|round(2) }} minutes
                             </span>
                         </div>
                         <div id="resultDiv" style="margin-top: 10px;">
                             <span>
-                                <strong>CARBON EMISSION PRODUCED :</strong> <u>{{ carbon_emission|round(2) }} grams</u>
+                                <strong>CARBON EMISSION PRODUCED :</strong> {{ carbon_emission|round(2) }} grams
+                            </span>
+                        </div>
+                        <div id="resultDiv" style="margin-top: 10px;">
+                            <span>
+                                <strong>Computing Time :</strong> {{ process_time|round(2) }} seconds
                             </span>
                         </div>
                         <a href="/"><input type="submit" value="Get Another Route!" style="margin-top: 10px;margin-bottom: 20px;"></a>

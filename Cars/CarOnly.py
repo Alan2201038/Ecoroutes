@@ -3,6 +3,7 @@ import os
 import pickle
 import networkx as nx
 import math
+import time
 # Get the absolute path to the parent directory
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -36,6 +37,7 @@ else:
         pickle.dump(graph, f)
 
 def Route(start, end):
+    start_time = time.time()
 
     print(start)
     print(end)
@@ -90,6 +92,8 @@ def Route(start, end):
     # print(reduced_coordinates)
     # print(reduced_mode_list)
 
-    return (ASTAR[1], ASTAR[2], GUI.draw_map(reduced_coordinates, reduced_mode_list))
+    end_time = time.time()
+    execution_time = end_time - start_time
+    return (ASTAR[1], ASTAR[2], GUI.draw_map(reduced_coordinates, reduced_mode_list), execution_time)
     # asd_path=Dijkstra.dijkstra(graph,node_source,node_target)
     # print(asd_path)

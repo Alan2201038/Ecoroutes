@@ -9,6 +9,7 @@ import pickle
 import os
 import math
 import sys
+import time
 # Get the absolute path to the parent directory
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -99,6 +100,7 @@ else:
         pickle.dump(combined_G, f)
 
 def Route(start, end, mode):
+    start_time = time.time()
 
     value1 = start
     value2 = end
@@ -194,4 +196,7 @@ def Route(start, end, mode):
     print(reduced_coordinates)
     print(reduced_mode_list)
 
-    return (Eco[1], Eco[2], GUI.draw_map(reduced_coordinates, reduced_mode_list))
+
+    end_time = time.time()
+    execution_time = end_time - start_time
+    return (Eco[1], Eco[2], GUI.draw_map(reduced_coordinates, reduced_mode_list), execution_time)
