@@ -66,7 +66,7 @@ else:
 
     WALKING_SPEED = 5
     BUS_SPEED = 30
-    TRANSFER_PENALTY = 15  # Changed to 15 minutes to better reflect actual transfer times
+    TRANSFER_PENALTY = 8  # Changed to 15 minutes to better reflect actual transfer times
 
     print("Building walking graph...")
     # Construct a graph for the walking paths

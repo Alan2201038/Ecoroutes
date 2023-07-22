@@ -55,7 +55,7 @@ else:
         with open(buswalkGraph, "rb") as f:
             buswalk_G = pickle.load(f)
         combined_G = nx.compose(mrt_G, buswalk_G)
-
+    print("Creating edge to the nearest bus walk node")
     for node in mrt_G.nodes():
         if "STATION" in node:
             print(node)
@@ -69,8 +69,25 @@ else:
             combined_G.add_edge(node, nearest_walk_bus_node, key=f"walk_{node}_{nearest_walk_bus_node}",
                                 duration=time_needed)
             combined_G.add_edge(nearest_walk_bus_node,node,key=f"walk_{nearest_walk_bus_node}_{node}", duration=time_needed)
-            for n in combined_G.neighbors(node):
-                print(n)
+    print("Linking bus services to one another")
+    bus_stops_dict = {}
+    for nodes in combined_G.nodes():
+        if isinstance(nodes, tuple):
+            walking, busstop = nodes[:2]
+            if (walking, busstop) not in bus_stops_dict:
+                bus_stops_dict[(walking, busstop)] = []
+                bus_stops_dict[(walking, busstop)].append(nodes)
+            else:
+                bus_stops_dict[(walking, busstop)].append(nodes)
+
+    for key, values in bus_stops_dict.items():
+        for i in range(len(values)):
+            bus_node_A = values[i]
+            for j in range(i + 1, len(values)):
+                bus_node_B = values[j]
+                combined_G.add_edge(bus_node_A, bus_node_B, key=f"walk_{bus_node_A}_{bus_node_B}", duration=0)
+                combined_G.add_edge(bus_node_B, bus_node_A, key=f"walk_{bus_node_B}_{bus_node_A}", duration=0)
+
 
     with open(combinedGraph, "wb") as f:
         pickle.dump(combined_G, f)
@@ -165,3 +182,54 @@ print(reduced_coordinates)
 print(reduced_mode_list)
 
 GUI.draw_test(reduced_coordinates, reduced_mode_list)
+
+
+
+
+# khatib=[1.332479, 103.777670]
+# src=ox.distance.nearest_nodes(buswalk_G, khatib[1], khatib[0])
+#
+# for node in buswalk_G.nodes():
+#     if isinstance(node,tuple):
+#         val1,val2=node[1:]
+#         if val1=='12109':
+#             print(node)
+
+
+# bishan=[1.3154204, 103.7650796]
+# des=ox.distance.nearest_nodes(buswalk_G, bishan[1], bishan[0])
+#
+# for n in buswalk_G.neighbors((8285736402, '12109', '154')):
+#     print(n)
+#
+# # Fast=AStar_Eco.AStar(combined_G,"KHATIB MRT STATION", "SEMBAWANG MRT STATION",mode="Fastest")
+# # Balanced=AStar_Eco.AStar(combined_G,src, des,mode="Balanced")
+# # Eco=AStar_Eco.AStar(combined_G,src, des)
+# Fast=AStar_Eco.AStar(combined_G,(8285736402, '12109', '154'), des,mode="Fastest")
+# # Fast=AStar_Eco.AStar(combined_G,(410463767, '17171', '156'),(4984659026, '17009', '156') ,mode="Fastest")
+# # Balanced=AStar_Eco.AStar(combined_G,src, des,mode="Balanced")
+# # Eco=AStar_Eco.AStar(combined_G,src, des)
+#
+# print("Fastest",Fast)
+# # # print("Balanced",Balanced)
+# # # print("Eco",Eco)
+# # # Fast=AStar_Eco.AStar(combined_G,src, des,mode="Fastest")
+# # # # assuming that Eco[0] is the list of nodes in the path from source to destination
+# # route_nodes = Fast[0]
+# # # convert the nodes into Lat and Long coordinates
+# # route_coords = []
+# # for node in route_nodes:
+# #     point = combined_G.nodes[node]
+# #     if "y" in point:
+# #         route_coords.append([point['y'], point['x']])
+# #     elif "pos" in point:
+# #         route_coords.append([point['pos'][0],point['pos'][1]])
+# #
+# # # Create a Map centered around the start point
+# # m = folium.Map(location=khatib, zoom_start=14)
+# #
+# # # Add a line to the map
+# # folium.PolyLine(route_coords, color="red", weight=2.5, opacity=1).add_to(m)
+# #
+# # m.save("fastest_map.html")
+
