@@ -23,6 +23,28 @@
         .col-md-9 {
             flex: 1; /* Make the map column expand to fill the available space */
         }
+        /* New CSS styles for autocomplete */
+        .autocomplete-items {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .autocomplete-items div {
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+        .autocomplete-active {
+        /*when navigating through the items using the arrow keys:*/
+        background-color: DodgerBlue !important;
+        color: #ffffff;
+        }
     </style>
 </head>
 
@@ -36,12 +58,16 @@
                 <div class="col-md-3 col-xl-2">
                     <div class="row">
                         <div class="col">
-                            <form action="/process" method="post">
-                                <span><strong>FROM:</strong></span>
-                                <input name="start" class="form-control" type="text" style="margin-bottom: 20px;"><span>
-                                <strong>TO:</strong>
-                                <input name="end" class="form-control" type="text" style="margin-bottom: 20px;"></span>
-                                <input type="submit" value="Let's Go!" style="margin-bottom: 20px;" onclick="submitForm()">
+                            <form action="/process" method="post" autocomplete="off">
+                                <div class="autocomplete">
+                                    <span><strong>FROM:</strong></span>
+                                    <input name="start" class="form-control" type="text" style="margin-bottom: 0px;" id="startInput">
+                                </div> 
+                                <div class="autocomplete" style="margin-top: 20px;">
+                                    <span><strong>TO:</strong></span>
+                                    <input name="end" class="form-control autocomplete" type="text" id="endInput">
+                                </div>
+                                <input type="submit" value="Let's Go!" style="margin-top: 10px;margin-bottom: 10px;" onclick="submitForm()">
                             </form>
                         </div>
                     </div>
@@ -111,38 +137,162 @@
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Forward Geocoding API Endpoint
-        const accessKey = "ace67487c08a56119c53f586ecaf8e04";
-        const query = "Ngee Ann Polytechnic, SG";
-        const apiUrl = `http://api.positionstack.com/v1/forward?access_key=${accessKey}&query=${encodeURIComponent(query)}`;
+        // Function to fetch the new merged CSV data from the server
+        function fetchMergedCsvData() {
+            return fetch('/get-merged-csv-data')
+                .then(response => response.json())
+                .catch(error => {
+                    console.error("Error fetching merged CSV data:", error);
+                });
+        };
 
-        // Make the API call using Fetch API
-        fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
-            // Process the API response
-            displayResults(data);
-        })
-        .catch(error => {
-            // Handle any errors that occurred during the API call
-            console.error("Error fetching data:", error);
+        // // Call the function to fetch new merged CSV data when the page loads or when needed
+        // fetchMergedCsvData();
+        function autocomplete(inp, arr) {
+            /*the autocomplete function takes two arguments,
+            the text field element and an array of possible autocompleted values:*/
+            var currentFocus;
+            /*execute a function when someone writes in the text field:*/
+            inp.addEventListener("input", function(e) {
+                var a, b, i, val = this.value;
+                /*close any already open lists of autocompleted values*/
+                closeAllLists();
+                if (!val) { return false;}
+                currentFocus = -1;
+                /*create a DIV element that will contain the items (values):*/
+                a = document.createElement("DIV");
+                a.setAttribute("id", this.id + "autocomplete-list");
+                a.setAttribute("class", "autocomplete-items");
+                /*append the DIV element as a child of the autocomplete container:*/
+                this.parentNode.appendChild(a);
+                /*for each item in the array...*/
+                for (i = 0; i < arr.length; i++) {
+                    /*check if the item starts with the same letters as the text field value:*/
+                    if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                    /*create a DIV element for each matching element:*/
+                    b = document.createElement("DIV");
+                    /*make the matching letters bold:*/
+                    b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                    b.innerHTML += arr[i].substr(val.length);
+                    /*insert a input field that will hold the current array item's value:*/
+                    b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                    /*execute a function when someone clicks on the item value (DIV element):*/
+                        b.addEventListener("click", function(e) {
+                        /*insert the value for the autocomplete text field:*/
+                        inp.value = this.getElementsByTagName("input")[0].value;
+                        /*close the list of autocompleted values,
+                        (or any other open lists of autocompleted values:*/
+                        closeAllLists();
+                    });
+                    a.appendChild(b);
+                    }
+                }
+            });
+            /*execute a function presses a key on the keyboard:*/
+            inp.addEventListener("keydown", function(e) {
+                var x = document.getElementById(this.id + "autocomplete-list");
+                if (x) x = x.getElementsByTagName("div");
+                if (e.keyCode == 40) {
+                    /*If the arrow DOWN key is pressed,
+                    increase the currentFocus variable:*/
+                    currentFocus++;
+                    /*and and make the current item more visible:*/
+                    addActive(x);
+                } else if (e.keyCode == 38) { //up
+                    /*If the arrow UP key is pressed,
+                    decrease the currentFocus variable:*/
+                    currentFocus--;
+                    /*and and make the current item more visible:*/
+                    addActive(x);
+                } else if (e.keyCode == 13) {
+                    /*If the ENTER key is pressed, prevent the form from being submitted,*/
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                    /*and simulate a click on the "active" item:*/
+                    if (x) x[currentFocus].click();
+                    }
+                }
+            });
+        function addActive(x) {
+            /*a function to classify an item as "active":*/
+            if (!x) return false;
+            /*start by removing the "active" class on all items:*/
+            removeActive(x);
+            if (currentFocus >= x.length) currentFocus = 0;
+            if (currentFocus < 0) currentFocus = (x.length - 1);
+            /*add class "autocomplete-active":*/
+            x[currentFocus].classList.add("autocomplete-active");
+        }
+        function removeActive(x) {
+            /*a function to remove the "active" class from all autocomplete items:*/
+            for (var i = 0; i < x.length; i++) {
+            x[i].classList.remove("autocomplete-active");
+            }
+        }
+        function closeAllLists(elmnt) {
+            /*close all autocomplete lists in the document,
+            except the one passed as an argument:*/
+            var x = document.getElementsByClassName("autocomplete-items");
+            for (var i = 0; i < x.length; i++) {
+            if (elmnt != x[i] && elmnt != inp) {
+            x[i].parentNode.removeChild(x[i]);
+            }
+        }
+        }
+        /*execute a function when someone clicks in the document:*/
+        document.addEventListener("click", function (e) {
+            closeAllLists(e.target);
         });
-
-        // Function to display the API results
-        function displayResults(data) {
-        // Assuming the API returns an array of geocoding results
-        console.log(data);
-        // Process and display the data as needed
-        // For example, you can display the latitude and longitude of the first result:
-        if (data && data.data && data.data.length > 0) {
-            const firstResult = data.data[0];
-            const latitude = firstResult.latitude;
-            const longitude = firstResult.longitude;
-            const location = firstResult.name;
-            console.log(`Latitude: ${latitude}, Longitude: ${longitude}, Location: ${location}`);
-        }
         }
 
+        // Function to set up the autocomplete for your input elements
+        async function setupAutocomplete() {
+            // Get your input elements (assuming they have IDs "startInput" and "endInput")
+            const startInputElement = document.getElementById("startInput");
+            const endInputElement = document.getElementById("endInput");
+
+            // Fetch the JSON data using the fetchMergedCsvData() function
+            const jsonData = await fetchMergedCsvData();
+
+            // Autocomplete for "Start" input
+            autocomplete(startInputElement, jsonData.map(item => item.STN_NAME));
+
+            // Autocomplete for "End" input
+            autocomplete(endInputElement, jsonData.map(item => item.STN_NAME));
+        }
+
+        // Execute the setupAutocomplete function when the document is ready
+        document.addEventListener("DOMContentLoaded", setupAutocomplete);
+        function submitForm() {
+            // Get form data
+            const formData = new FormData(document.getElementById('myForm'));
+            const start = formData.get('start');
+            const end = formData.get('end');
+
+            // Create a new XMLHttpRequest object
+            const xhr = new XMLHttpRequest();
+
+            // Configure the request
+            xhr.open('POST', '/process', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+            // Define what to do when the request is complete
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // Request succeeded, update the result div
+                        const resultDiv = document.getElementById('result');
+                        resultDiv.innerHTML = xhr.responseText;
+                    } else {
+                        // Request failed, handle the error
+                        console.error('Request failed:', xhr.status, xhr.statusText);
+                    }
+                }
+            };
+
+            // Send the request with the form data
+            xhr.send(`start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+        }
     </script>
 </body>
 

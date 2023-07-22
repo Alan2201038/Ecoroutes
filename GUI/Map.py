@@ -105,13 +105,13 @@ def draw_map(path_list, mode_list):
     # print(path_coordinates)
 
     # Draw Map in Folium
-    m.save('folium2.html')
+    # m.save('folium2.html')
     # webbrowser.open(map_html)
     # return map_html
 
     # Render m
-    # m.get_root().render()
+    m.get_root().render()
 
-    # iframe = m.get_root()._repr_html_()
+    iframe = m.get_root()._repr_html_()
 
-    # return iframe
+    return iframe

@@ -75,93 +75,92 @@ else:
     with open(combinedGraph, "wb") as f:
         pickle.dump(combined_G, f)
 
+def Route(start, end):
+    start=ox.distance.nearest_nodes(buswalk_G, start[1], start[0])
 
-start=[1.33242473248, 103.777698548]
-start=ox.distance.nearest_nodes(buswalk_G, src[1], src[0])
+    # end=[1.3152, 103.7652]
+    end=ox.distance.nearest_nodes(buswalk_G, end[1], end[0])
 
-end=[1.3152, 103.7652]
-end=ox.distance.nearest_nodes(buswalk_G, des[1], des[0])
+    # Fast=AStar_Eco.AStar(combined_G,src, des,mode="Fastest")
+    # Balanced=AStar_Eco.AStar(combined_G,src, des,mode="Balanced")
+    Eco=AStar_Eco.AStar(combined_G,start, end)
+    # print("Fastest",Fast)
+    # print("Balanced",Balanced)
+    # print("Eco",Eco)
 
-# Fast=AStar_Eco.AStar(combined_G,src, des,mode="Fastest")
-# Balanced=AStar_Eco.AStar(combined_G,src, des,mode="Balanced")
-Eco=AStar_Eco.AStar(combined_G,start, end)
-# print("Fastest",Fast)
-# print("Balanced",Balanced)
-# print("Eco",Eco)
+    geolocator = Nominatim(user_agent="ecoroutes_test")
+    coordinates = []
+    mode_list = []
+    # Reduced coordinates and mode_list
+    reduced_coordinates = []
+    reduced_mode_list = []
 
-geolocator = Nominatim(user_agent="ecoroutes_test")
-coordinates = []
-mode_list = []
-# Reduced coordinates and mode_list
-reduced_coordinates = []
-reduced_mode_list = []
+    count = 0
+    for node in Eco[0]:
+        node_data = combined_G.nodes[node]
 
-count = 0
-for node in Eco[0]:
-    node_data = combined_G.nodes[node]
+        if 'pos' in node_data:
+            node_data['y'], node_data['x'] = node_data['pos']  # Extract 'pos' key and rename it as 'y' and 'x'
 
-    if 'pos' in node_data:
-        node_data['y'], node_data['x'] = node_data['pos']  # Extract 'pos' key and rename it as 'y' and 'x'
+        if isinstance(node, tuple):
+            node_data['mode'] = 'Bus'
+        elif isinstance(node, str):
+            node_data['mode'] = 'Train'
+        elif isinstance(node, int):
+            node_data['mode'] = 'Walk'
 
-    if isinstance(node, tuple):
-        node_data['mode'] = 'Bus'
-    elif isinstance(node, str):
-        node_data['mode'] = 'Train'
-    elif isinstance(node, int):
-        node_data['mode'] = 'Walk'
+        latitude, longitude, mode = node_data['y'], node_data['x'], node_data['mode']
+        location = geolocator.reverse((latitude, longitude), exactly_one=True)
 
-    latitude, longitude, mode = node_data['y'], node_data['x'], node_data['mode']
-    location = geolocator.reverse((latitude, longitude), exactly_one=True)
+        # Print the location name
+        # print("Location name:", location.address)
+        coordinates.append((latitude, longitude))
+        mode_list.append(mode)
+        test = coordinates.copy()
 
-    # Print the location name
-    # print("Location name:", location.address)
-    coordinates.append((latitude, longitude))
-    mode_list.append(mode)
-    test = coordinates.copy()
+    walk_only = []
+    for position in range(len(mode_list)):
+        if mode_list[position] == 'Walk':
+            walk_only.append(coordinates[position])
 
-walk_only = []
-for position in range(len(mode_list)):
-    if mode_list[position] == 'Walk':
-        walk_only.append(coordinates[position])
+    # Initialize variables to keep track of the previous mode and rounded coordinates
+    prev_mode = None
+    prev_rounded_coords = None
 
-# Initialize variables to keep track of the previous mode and rounded coordinates
-prev_mode = None
-prev_rounded_coords = None
-
-# Manually iterating through the lists using indices
-for i in range(len(coordinates)):
-    coord = coordinates[i]
-    mode = mode_list[i]
-    
-    # Check if the mode is "Walk" and the next mode is also "Walk"
-    if mode == "Walk" and (prev_mode == "Walk" or i == len(coordinates) - 1):
-        # Round the coordinates down to 3 decimal places
-        rounded_coords = round_coordinates(coord)
+    # Manually iterating through the lists using indices
+    for i in range(len(coordinates)):
+        coord = coordinates[i]
+        mode = mode_list[i]
         
-        # Check if the rounded coordinates are the same as the previous rounded coordinates
-        if rounded_coords == prev_rounded_coords:
-            # Skip adding the coordinate to the reduced list
-            continue
-        
-        # Add the unique walking coordinate to the reduced list
-        reduced_coordinates.append(coord)
-        reduced_mode_list.append(mode)
-        
-        # Update the previous mode and rounded coordinates
-        prev_mode = mode
-        prev_rounded_coords = rounded_coords
-        
-    else:
-        # Add the non-walking coordinate to the reduced list
-        reduced_coordinates.append(coord)
-        reduced_mode_list.append(mode)
-        
-        # Update the previous mode and rounded coordinates
-        prev_mode = mode
-        prev_rounded_coords = round_coordinates(coord)
+        # Check if the mode is "Walk" and the next mode is also "Walk"
+        if mode == "Walk" and (prev_mode == "Walk" or i == len(coordinates) - 1):
+            # Round the coordinates down to 3 decimal places
+            rounded_coords = round_coordinates(coord)
+            
+            # Check if the rounded coordinates are the same as the previous rounded coordinates
+            if rounded_coords == prev_rounded_coords:
+                # Skip adding the coordinate to the reduced list
+                continue
+            
+            # Add the unique walking coordinate to the reduced list
+            reduced_coordinates.append(coord)
+            reduced_mode_list.append(mode)
+            
+            # Update the previous mode and rounded coordinates
+            prev_mode = mode
+            prev_rounded_coords = rounded_coords
+            
+        else:
+            # Add the non-walking coordinate to the reduced list
+            reduced_coordinates.append(coord)
+            reduced_mode_list.append(mode)
+            
+            # Update the previous mode and rounded coordinates
+            prev_mode = mode
+            prev_rounded_coords = round_coordinates(coord)
 
-# Print the reduced lists
-print(reduced_coordinates)
-print(reduced_mode_list)
+    # Print the reduced lists
+    print(reduced_coordinates)
+    print(reduced_mode_list)
 
-GUI.draw_test(reduced_coordinates, reduced_mode_list)
+    return GUI.draw_map(reduced_coordinates, reduced_mode_list)
