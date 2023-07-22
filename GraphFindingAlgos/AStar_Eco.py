@@ -59,6 +59,8 @@ def AStar(graph,start,end,mode):
   heap.insert((start,0,0))
   while not heap.check_empty():
     current_node = heap.get_root()[0]
+    if current_node==4734791179:
+      print("ASD")
 
     if current_node == end:  #Reached the target node
       break

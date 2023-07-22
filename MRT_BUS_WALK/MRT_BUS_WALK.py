@@ -88,25 +88,40 @@ else:
                 combined_G.add_edge(bus_node_A, bus_node_B, key=f"walk_{bus_node_A}_{bus_node_B}", duration=0)
                 combined_G.add_edge(bus_node_B, bus_node_A, key=f"walk_{bus_node_B}_{bus_node_A}", duration=0)
 
-
+    for nodes in combined_G.nodes():
+        if isinstance(nodes,tuple):
+            for neighbor in combined_G.neighbors(nodes):
+                if isinstance(neighbor, int):
+                    edge_data = combined_G.get_edge_data(nodes, neighbor)
+                    edge_key = list(edge_data.keys())[-1]
+                    edge_weight = edge_data[edge_key]['duration']
+                    combined_G.add_edge(neighbor, nodes, key=f"walk_{neighbor}_{nodes}", duration=edge_weight)
     with open(combinedGraph, "wb") as f:
         pickle.dump(combined_G, f)
 
 
 
-khatib=[1.350845, 103.848176]
-src=ox.distance.nearest_nodes(buswalk_G, khatib[1], khatib[0])
-
-bishan=[1.353968, 103.833820]
-des=ox.distance.nearest_nodes(buswalk_G, bishan[1], bishan[0])
 
 
-# for nodes in combined_G.nodes():
-#     if isinstance(nodes,tuple):
-#         value1, value2 = nodes[1:]
-#         if value1=="46771":
-#             print(nodes)
-path=AStar_Eco.AStar(combined_G,"WOODLANDS MRT STATION",(6116490868, '46771', '904'))
+
+
+test1=(6116490868, '46771', '904')
+test2=4738663075
+test3=7990780990
+
+for neighbor in combined_G.neighbors(test1):
+    if isinstance(neighbor,int):
+        edge_data=combined_G.get_edge_data(test1,neighbor)
+        edge_key = list(edge_data.keys())[-1]
+        edge_weight = edge_data[edge_key]['duration']
+        combined_G.add_edge(neighbor,test1,key=f"walk_{neighbor}_{test1}",duration=edge_weight)
+
+
+
+
+#path = AStar_Eco.AStar(combined_G, (4734791178, '58341', '962B'),"YISHUN MRT STATION", mode="Eco")
+path=AStar_Eco.AStar(combined_G,"YISHUN MRT STATION",(4734791178, '58341', '962B'),mode="Eco")
+print(path)
 
 
 # Fast=AStar_Eco.AStar(combined_G,src, des,mode="Fastest")

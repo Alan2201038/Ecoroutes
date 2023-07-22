@@ -1,7 +1,6 @@
 import sys
 import os
 import pickle
-import networkx as nx
 
 # Get the absolute path to the parent directory
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
