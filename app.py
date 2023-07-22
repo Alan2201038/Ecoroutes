@@ -18,6 +18,12 @@ def index():
     map_sg = m.get_root()._repr_html_()
     return render_template('index.html', path=map_sg)
 
+# Function to format the string if it contains numbers
+def format_string(s):
+    if any(char.isdigit() for char in s):
+        return "Bus Stop " + s
+    return s
+
 # Step 4: Handle the form submission and process the inputs
 @app.route('/process', methods=['POST'])
 def process():
@@ -26,7 +32,11 @@ def process():
     end = request.form['end']
     transport = request.form['transport']
 
-    print(start, end, transport)
+    # print(start, end_location, transport)
+    start_location = format_string(start)
+    end_location = format_string(end)
+
+    print(start_location, end_location)
 
     # Step 5: Call the Python script with the inputs and get the result
     if transport == 'PT':
@@ -75,7 +85,7 @@ def process():
     # print(path)
 
     # Return the result back to the HTML page
-    return render_template('index.html', path=path, time_taken=time_taken,carbon_emission=carbon_emission)
+    return render_template('index.html', path=path, time_taken=time_taken,carbon_emission=carbon_emission, start_location=start_location, end_location=end_location)
     # return jsonify({'path' : path})
 
 # Endpoint to serve the new merged CSV data as JSON
