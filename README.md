@@ -1,7 +1,7 @@
 # Ecoroutes
-
+Insert ECO DRAWING HERE - Alan
 ## Table of Contents
----
+
 * [Ecoroutes](#ecoroutes)
 * [Getting Started](#getting-started)
     * [Requirements](#requirements)
@@ -14,12 +14,12 @@
 
 
 ## Ecoroutes
----
+
 **EcoRoutes**  is a comprehensive routing application tailored for Singapore's transport system. Providing users with **real-time, eco-friendly travel options**, EcoRoutes aims to usher in a more sustainable transport culture. We firmly believe that EcoRoutes stands as a significant stride towards a greener future, enabling individuals to understand and minimize the environmental impact of their travel choices. 
 
 
 ## Getting Started
----
+
 ### Requirements
 * Hardware Requirements
     * Modern Operating System:
@@ -96,7 +96,7 @@ Dependencies required :
 
 
 ## Running the Application
----
+
 ### How to run the application
 
     Run the python file "app.py"
@@ -116,7 +116,7 @@ Choose your mode of transport from the dropdown menu.
 **Do take note that the application will take a few seconds to load the route.**
 
 ## Contributors
----
+
 ## CEO: [Munir](https://open.spotify.com/track/37xuoeOvBLK6zV9wkgRttR?si=58e287e51473457a)
 ### CTO: JJ  
 #### Head Software Engineers: Travis & Shaoyu  
