@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import csv
+import folium
 from MRT_BUS_WALK import PublicTransport as PT
 
 
@@ -8,9 +9,13 @@ app = Flask(__name__, static_folder='GUI/static', template_folder='GUI/templates
 @app.route('/')
 def index():
     
+    # Creating a Folium Map of Singapore
+    m = folium.Map(location=[1.3521, 103.8198], zoom_start=12)
+    # Render m
+    m.get_root().render()
 
-
-    return render_template('index.html')
+    map_sg = m.get_root()._repr_html_()
+    return render_template('index.html', path=map_sg)
 
 # Step 4: Handle the form submission and process the inputs
 @app.route('/process', methods=['POST'])
@@ -39,8 +44,3 @@ def get_merged_csv_data():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-
-# API KEY = AIzaSyALi-eGCrt1wQkiO5ZeXHaWrHxHdTUpzXU
-# <script async
-#     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyALi-eGCrt1wQkiO5ZeXHaWrHxHdTUpzX&libraries=places&callback=initMap">
-# </script>

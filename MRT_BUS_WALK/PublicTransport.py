@@ -18,9 +18,9 @@ sys.path.append(parent_dir)
 from GraphFindingAlgos import AStar_Eco
 from GUI import Map as GUI
 
-mrtGraph= "..\\Data\\Pickle\\MRT_Graph.pickle"
-buswalkGraph="..\\Data\\Pickle\\Bus_Walk.pickle"
-combinedGraph="..\\Data\\Pickle\\Combined_Graph.pickle"
+mrtGraph= "Data\\Pickle\\MRT_Graph.pickle"
+buswalkGraph="Data\\Pickle\\Bus_Walk.pickle"
+combinedGraph="Data\\Pickle\\Combined_Graph.pickle"
 WALKING_SPEED=5
 
 def round_coordinates(coord, precision=3):
