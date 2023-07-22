@@ -10,11 +10,11 @@ def eco_friendliness(time,transportation,mode="Eco"):
     i1=1.0
     i2=0
   elif mode=="Balanced":
-    i1=0.75
-    i2=0.25
+    i1=0.8
+    i2=0.2
   elif mode=="Eco":
-    i1=0.6
-    i2=0.4
+    i1=0.5
+    i2=0.5
   result=i1*time+i2*(time*eco_dict[transportation])
   return result
 
@@ -35,7 +35,6 @@ def est_time(lon1, lat1, lon2, lat2, transportation):
 def AStar(graph,start,end,mode="Eco"):
   eco_dict = {"MRT": 18.05, "bus": 36.5,"walk":0}  # Carbon emission per minute
   end_values=graph.nodes[end]
-  walk_amt=0
 
   if "pos" in end_values:
     node_data = end_values["pos"]
@@ -60,6 +59,8 @@ def AStar(graph,start,end,mode="Eco"):
   heap.insert((start,0,0))
   while not heap.check_empty():
     current_node = heap.get_root()[0]
+    if current_node==7180508411:
+      print("ASD")
 
     if current_node == end:  #Reached the target node
       break
@@ -116,8 +117,9 @@ def AStar(graph,start,end,mode="Eco"):
       heu2=est_time(longitude, latitude, end_lon, end_lat, edge_transportation)
       total_value=time_dict[current_node][0]+edge_weight+heu2+heu
       neighbor_value = time_dict[neighbor][2]
-
-      if total_value < neighbor_value and walk_amt<10.00:
+      if edge_transportation=="bus":
+        total_value-=15 #Change edge transportation from
+      if total_value < neighbor_value:
         time_dict[neighbor] = (total_value-heu2-heu, edge_transportation, total_value)
         prev_dict[neighbor] = current_node
         heap.insert((neighbor, total_value, edge_weight))
