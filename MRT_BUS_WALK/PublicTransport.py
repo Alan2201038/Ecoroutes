@@ -46,6 +46,8 @@ if os.path.exists(combinedGraph):
         combined_G = pickle.load(f)
     with open(buswalkGraph, "rb") as f:
         buswalk_G = pickle.load(f)
+    with open(mrtGraph, "rb") as f:
+            mrt_G = pickle.load(f)
 
 else:
     #Create combined graph if does not exist
