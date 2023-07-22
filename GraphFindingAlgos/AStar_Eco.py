@@ -59,8 +59,6 @@ def AStar(graph,start,end,mode="Eco"):
   heap.insert((start,0,0))
   while not heap.check_empty():
     current_node = heap.get_root()[0]
-    if current_node==7180508411:
-      print("ASD")
 
     if current_node == end:  #Reached the target node
       break
@@ -87,7 +85,7 @@ def AStar(graph,start,end,mode="Eco"):
           temp_list=list(temp)
           if len(temp_list)==1:
             #bus edge
-            edge_key=list(edge_data.keys())[1]
+            edge_key=list(edge_data.keys())[-1]
             edge_transportation=edge_key[:3]
             edge_weight=edge_data[edge_key]['duration']
           else:
