@@ -4,7 +4,7 @@ from GraphFindingAlgos import minheap
 """This functions calculates the fastest path to the given destination from the given source, it is calculated
 using the A* algorithm which uses an additional heuristic in the consideration of the 'best' node to use next"""
 
-def heuristic(time,transport,mode="Eco"):
+def eco_friendliness(time,transportation,mode="Eco"):
   eco_dict = {"MRT": 18.05, "bus": 36.5,"walk":0}#Carbon emission per minute
   if mode=="Fastest":
     i1=1.0
@@ -13,18 +13,13 @@ def heuristic(time,transport,mode="Eco"):
     i1=0.93
     i2=0.07
   elif mode=="Eco":
-<<<<<<< Updated upstream
-    i1=0.7
-    i2=0.3
-=======
-    i1=0.6
-    i2=0.4
->>>>>>> Stashed changes
-  result=i1*time+i2*(time*eco_dict[transport])
+    i1=0.5
+    i2=0.5
+  result=i1*time+i2*(time*eco_dict[transportation])
   return result
 
-def heuristic2(lon1, lat1, lon2, lat2,transportation):
-  #Haversine used as the heuristic
+def est_time(lon1, lat1, lon2, lat2, transportation):
+  #Haversine used as the heuristic to calculate straight line distance divided by travelling speed to get an overestimate
   speed={"walk":5,"MRT":83.33,"bus":30}
   radius = 6371
   lon1, lat1, lon2, lat2 = map(math.radians, [lon1, lat1, lon2, lat2])
@@ -103,7 +98,6 @@ def AStar(graph,start,end,mode="Eco"):
         edge_key=next(iter(edge_data))
         edge_transportation=edge_key[:4]
         edge_weight=edge_data[edge_key]['duration']
-      print(edge_transportation)
 
 
       # total_time = time_dict[current_node][0] + edge_weight
@@ -117,13 +111,15 @@ def AStar(graph,start,end,mode="Eco"):
         latitude, longitude = node_data[0], node_data[1]
       else:
         latitude,longitude=node_values['y'],node_values['x']
-      heu2=heuristic2(longitude,latitude,end_lon,end_lat,edge_transportation)
-      total_value=time_dict[current_node][0]+edge_weight+heu2
+
+      heu = eco_friendliness(edge_weight, edge_transportation, mode=mode)
+      heu2=est_time(longitude, latitude, end_lon, end_lat, edge_transportation)
+      total_value=time_dict[current_node][0]+edge_weight+heu2+heu
       neighbor_value = time_dict[neighbor][2]
       if edge_transportation=="bus":
         total_value-=15 #Change edge transportation from
       if total_value < neighbor_value and walk_amt<10.00:
-        time_dict[neighbor] = (total_value-heu2, edge_transportation, total_value)
+        time_dict[neighbor] = (total_value-heu2-heu, edge_transportation, total_value)
         prev_dict[neighbor] = current_node
         heap.insert((neighbor, total_value, edge_weight))
 
