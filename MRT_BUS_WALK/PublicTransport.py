@@ -72,6 +72,27 @@ else:
             for n in combined_G.neighbors(node):
                 print(n)
 
+    bus_stops_dict = {}
+    for nodes in combined_G.nodes():
+        if isinstance(nodes, tuple):
+            walking, busstop = nodes[:2]
+            if (walking, busstop) not in bus_stops_dict:
+                bus_stops_dict[(walking, busstop)] = []
+                bus_stops_dict[(walking, busstop)].append(nodes)
+            else:
+                bus_stops_dict[(walking, busstop)].append(nodes)
+
+    for key, values in bus_stops_dict.items():
+        for i in range(len(values)):
+            bus_node_A = values[i]
+            for j in range(i + 1, len(values)):
+                bus_node_B = values[j]
+                combined_G.add_edge(bus_node_A, bus_node_B, key=f"walk_{bus_node_A}_{bus_node_B}", duration=0)
+                combined_G.add_edge(bus_node_B, bus_node_A, key=f"walk_{bus_node_B}_{bus_node_A}", duration=0)
+
+    with open(combinedGraph, "wb") as f:
+        pickle.dump(combined_G, f)
+
     with open(combinedGraph, "wb") as f:
         pickle.dump(combined_G, f)
 
