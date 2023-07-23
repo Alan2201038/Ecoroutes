@@ -27,7 +27,7 @@ def format_string(s):
             for row in reader:
                 if s in row[4]:  # Check if the row is not empty
                     node = str(row[0])
-        return "Bus Stop: " + s, node
+        return "Bus Stop " + s, node
     return s, s
 
 
@@ -42,6 +42,7 @@ def process():
     # print(start, end_location, transport)
     start_location, start = format_string(start)
     end_location, end = format_string(end)
+    routing = []
 
     print(start_location, end_location)
 
@@ -49,9 +50,9 @@ def process():
     if transport == 'PT':
         mode = request.form['mode']
 
-        time_taken, carbon_emission, path, process_time = PT.Route(start, end, mode)
+        time_taken, carbon_emission, path, process_time, routing = PT.Route(start, end, mode)
 
-        print(time_taken, carbon_emission, process_time)
+        print(time_taken, carbon_emission, process_time, routing)
 
     elif transport == 'Car':
         if 'STATION' in start:
@@ -84,16 +85,16 @@ def process():
                     if end in row[0]:  # Check if the row is not empty
                         end_coordinates = (float(row[2]), float(row[3]))
 
-        time_taken, carbon_emission, path, process_time = Car.Route(start_coordinates, end_coordinates)
+        time_taken, carbon_emission, path, process_time, routing = Car.Route(start_coordinates, end_coordinates)
 
-        print(time_taken, carbon_emission, process_time)
+        print(time_taken, carbon_emission, process_time, routing)
 
         
     # print(path)
 
     # Return the result back to the HTML page
     return render_template('index.html', path=path, time_taken=time_taken,carbon_emission=carbon_emission, 
-                           start_location=start_location, end_location=end_location, process_time=process_time)
+                           start_location=start_location, end_location=end_location, process_time=process_time, routing=routing)
     # return jsonify({'path' : path})
 
 # Endpoint to serve the new merged CSV data as JSON

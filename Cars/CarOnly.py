@@ -58,16 +58,34 @@ def Route(start, end):
 
     geolocator = Nominatim(user_agent="ecoroutes_test")
     coordinates = []
+    locator = []
+    location_names = []
+    reduced_locations = []
     mode_list = []
     reduced_coordinates = []
     reduced_mode_list = []
+    count = 0
     for node in ASTAR[0]:
         node_data = graph.nodes[node]
         latitude, longitude = node_data['y'], node_data['x']
         location = geolocator.reverse((latitude, longitude), exactly_one=True)
 
         coordinates.append((latitude, longitude))
+        locator.append(location)
+        # print("This is Location[new][1]: " + str(location[count][1]) )
+        count = count + 1
         mode_list.append('Car')
+
+    # print(coordinates)
+    print(type(locator))
+    print(type(locator[0][0]))
+    print(type(locator[0][1]))
+
+    # Extracting only the string portion from each tuple
+    location_names = [location[0] for location in locator]
+
+    # Printing the list of location names
+    print("LOCATION NAMES" + str(location_names))
 
     # Initialize variables to keep track of the previous mode and rounded coordinates
     prev_mode = None
@@ -76,6 +94,7 @@ def Route(start, end):
     for i in range(len(coordinates)):
         coord = coordinates[i]
         mode = mode_list[i]
+        locate = location_names[i]
         
         # Round the coordinates down to 3 decimal places
         rounded_coords = round_coordinates(coord)
@@ -88,11 +107,17 @@ def Route(start, end):
         # Add the non-walking coordinate to the reduced list
         reduced_coordinates.append(coord)
         reduced_mode_list.append(mode)
+        reduced_locations.append(locate)
         
         # Update the previous mode and rounded coordinates
         prev_mode = mode
         prev_rounded_coords = rounded_coords
 
+
+    # print(reduced_coordinates)
+    print("REDUCED LOCATIONS" + str(reduced_locations))
+    # print(reduced_locations)
     end_time = time.time()
     execution_time = end_time - start_time
-    return (ASTAR[1], ASTAR[2], GUI.draw_map(reduced_coordinates, reduced_mode_list), execution_time)
+
+    return (ASTAR[1], ASTAR[2], GUI.draw_map(reduced_coordinates, reduced_mode_list, reduced_locations), execution_time, reduced_locations)

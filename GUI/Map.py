@@ -10,7 +10,7 @@ mrt_csv = os.path.join(script_directory,'..', 'Data', 'MRT Stations.csv')
 # It also takes in a list of 'mode' to differentiate between the modes of transport.
 # The modes of transport are 'Car' and 'Train' and 'Bus'
 # Afterwards, it will return a <iframe> tag back
-def draw_map(path_list, mode_list):
+def draw_map(path_list, mode_list, location_list):
 
     # Creating a Folium Map of Singapore
     m = folium.Map(location=[1.3521, 103.8198], zoom_start=12)
@@ -38,21 +38,21 @@ def draw_map(path_list, mode_list):
         if position == 0:
             folium.Marker(
                 location = path_coordinates[position],
-                popup = path_list[position],
+                popup = location_list[position],
                 icon = folium.Icon(color='green', icon = icon_list[position] , prefix='fa'),
                 tooltip="Start!",
                 ).add_to(m)
         elif position == len(path_coordinates) - 1:
             folium.Marker(
                 location = path_coordinates[position],
-                popup = path_list[position],
+                popup = location_list[position],
                 icon = folium.Icon(color='red', icon = icon_list[position] , prefix='fa'),
                 tooltip="End!",
                 ).add_to(m)
         else:
             folium.Marker(
                 location = path_coordinates[position],
-                popup = path_list[position],
+                popup = location_list[position],
                 icon = folium.Icon(color='blue', icon = icon_list[position], prefix='fa'),
                 ).add_to(m)
 

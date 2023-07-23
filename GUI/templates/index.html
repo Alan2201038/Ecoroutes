@@ -11,8 +11,8 @@
     <style>
         /* Added CSS styles for the map-container and its parent div */
         #map-container {
-            width: 85%;
-            height: 75%; /* Set the height to fill its parent's height */
+            width: 90%;
+            height: 60%; /* Set the height to fill its parent's height */
         }
 
         .map-parent {
@@ -22,6 +22,8 @@
 
         .col-md-9 {
             flex: 1; /* Make the map column expand to fill the available space */
+            width: 90%;
+            height: 60%; /* Set the height to fill its parent's height */
         }
         /* New CSS styles for autocomplete */
         .autocomplete-items {
@@ -45,6 +47,21 @@
         background-color: DodgerBlue !important;
         color: #ffffff;
         }
+        .scrollable-div {
+            height: 350px; /* Set the desired height for the div */
+            overflow: auto; /* Use 'auto' for scrollbars to appear only when necessary, 'scroll' for always visible scrollbars */
+            border: 1px solid #ccc; /* Optional: Add a border to the div for visual clarity */
+            padding: 10px; /* Optional: Add padding to create some spacing between the content and the div edges */
+        }
+        .box-start:hover{
+            background: greenyellow; /* make this whatever you want */
+        }
+        .box:hover{
+            background: lightblue; /* make this whatever you want */
+        }
+        .box-end:hover{
+            background: red; /* make this whatever you want */
+        }
     </style>
 </head>
 
@@ -53,14 +70,14 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
                 <img src="static/assets/images/eco_icon.jpg"
-                    style="width: 155px; height: 90px;">
+                    style="width: 155px; height: 75px;">
             </a>
         </div>
     </nav>
     <main>
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-3 col-xl-2">
+                <div class="col-md-3 col-xl-2"  style="border: 2px solid whitesmoke;">
                     {% if time_taken and carbon_emission %}
                         <div>
                             <span><strong>FROM:</strong></span><br>
@@ -84,6 +101,18 @@
                             <span>
                                 <strong>Computing Time :</strong> {{ process_time|round(2) }} seconds
                             </span>
+                        </div>
+                        <div id="resultDiv" style="margin-top: 10px;">
+                            <span>
+                                <strong>Output Route :</strong>
+                            </span>
+                        </div>      
+                        <div class="scrollable-div">
+                            <div class="box-start">Start : {{ start_location }}</div>
+                            {% for i in range(1, routing|length) %}
+                                <div class="box" style="margin-top: 10px;"> ---> {{ routing[i] }}</div>
+                            {% endfor %}
+                            <div class="box-end" style="margin-top: 10px;">End : {{ end_location }}</div>
                         </div>
                         <a href="/"><input type="submit" value="Get Another Route!" style="margin-top: 10px;margin-bottom: 20px;"></a>
                     {% else %}
@@ -126,10 +155,10 @@
                                 </form>   
                     {% endif %}        
                 </div>
-                <div class="col-md-9 col-xl-10">
-                    <div id="map-container">
+                <div class="col-md-9 col-xl-10" id="map-container">
+                    <!-- <div id="map-container"> -->
                         {{ path | safe }}
-                    </div>
+                    <!-- </div> -->
                 </div>
             </div>
         </div>

@@ -131,9 +131,12 @@ def Route(start, end, mode):
     geolocator = Nominatim(user_agent="ecoroutes_test")
     coordinates = []
     mode_list = []
+    location_list = []
+
     # Reduced coordinates and mode_list
     reduced_coordinates = []
     reduced_mode_list = []
+    reduced_locations = []
 
     # Once the path_list is out, this section here will change the Node Id to,
     # [latitude, longitude] format.
@@ -154,7 +157,18 @@ def Route(start, end, mode):
         location = geolocator.reverse((latitude, longitude), exactly_one=True)
 
         coordinates.append((latitude, longitude))
+        location_list.append(location)
         mode_list.append(mode)
+
+    print(type(location_list))
+    print(type(location_list[0][0]))
+    print(type(location_list[0][1]))
+
+    # Extracting only the string portion from each tuple
+    location_list = [location[0] for location in location_list]
+
+    # Printing the list of location names
+    print("LOCATION NAMES" + str(location_list))
 
     # Initialize variables to keep track of the previous mode and rounded coordinates
     prev_mode = None
@@ -164,6 +178,7 @@ def Route(start, end, mode):
     for i in range(len(coordinates)):
         coord = coordinates[i]
         mode = mode_list[i]
+        location = location_list[i]
         
         # Check if the mode is "Walk" and the next mode is also "Walk"
         if mode == "Walk" and (prev_mode == "Walk" or i == len(coordinates) - 1):
@@ -178,6 +193,7 @@ def Route(start, end, mode):
             # Add the unique walking coordinate to the reduced list
             reduced_coordinates.append(coord)
             reduced_mode_list.append(mode)
+            reduced_locations.append(location)
             
             # Update the previous mode and rounded coordinates
             prev_mode = mode
@@ -187,17 +203,20 @@ def Route(start, end, mode):
             # Add the non-walking coordinate to the reduced list
             reduced_coordinates.append(coord)
             reduced_mode_list.append(mode)
+            reduced_locations.append(location)
             
             # Update the previous mode and rounded coordinates
             prev_mode = mode
             prev_rounded_coords = round_coordinates(coord)
 
     # Print the reduced lists
-    print(reduced_coordinates)
-    print(reduced_mode_list)
+    # print(reduced_coordinates)
+    # print(reduced_mode_list)
+
+    print("REDUCED LOCATIONS" + str(reduced_locations))
 
     # Calculation of Computing Time.
     end_time = time.time()
     execution_time = end_time - start_time
     
-    return (Eco[1], Eco[2], GUI.draw_map(reduced_coordinates, reduced_mode_list), execution_time)
+    return (Eco[1], Eco[2], GUI.draw_map(reduced_coordinates, reduced_mode_list, reduced_locations), execution_time, reduced_locations)
