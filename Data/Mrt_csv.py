@@ -154,6 +154,6 @@ def write_Dataframe():
     dataframe = dataframe[~dataframe['STN_NO'].isin(unwanted_stations)]
     dataframe = dataframe[~dataframe['STN_NAME'].isin(mRT_AND_LRT)]
 
-    dataframe.to_csv('mrt_stationst.csv', sep=',',index=False)
+    dataframe.to_csv('MRT Stations.csv', sep=',',index=False)
     print("done")
     return dataframe
