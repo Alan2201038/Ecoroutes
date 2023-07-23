@@ -104,7 +104,7 @@ Dependencies required :
     Run the python file "app.py"
 You will receive a local url which you can click on it to open the application in your prefered web browser.
 
-Insert Image of GUI!!! - Alan
+![GUI](/GUI/static/assets/images/GUI.png)
 
 Enter your **Starting Location** and **Destination** in the respective fields.
 
