@@ -21,8 +21,15 @@ def index():
 # Function to format the string if it contains numbers
 def format_string(s):
     if any(char.isdigit() for char in s):
-        return "Bus Stop " + s
-    return s
+        # Read data from the bus CSV file
+        with open('./Data/GUI/bus_stops.csv', newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                if s in row[4]:  # Check if the row is not empty
+                    node = str(row[0])
+        return "Bus Stop: " + s, node
+    return s, s
+
 
 # Step 4: Handle the form submission and process the inputs
 @app.route('/process', methods=['POST'])
@@ -33,8 +40,8 @@ def process():
     transport = request.form['transport']
 
     # print(start, end_location, transport)
-    start_location = format_string(start)
-    end_location = format_string(end)
+    start_location, start = format_string(start)
+    end_location, end = format_string(end)
 
     print(start_location, end_location)
 

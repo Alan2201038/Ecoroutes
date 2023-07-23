@@ -1,15 +1,12 @@
-import pandas as pd
 import networkx as nx
-from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
 import osmnx as ox
-import matplotlib.pyplot as plt
-import folium
 import pickle
 import os
 import math
 import sys
 import time
+
 # Get the absolute path to the parent directory
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -24,6 +21,8 @@ buswalkGraph="Data\\Pickle\\Bus_Walk.pickle"
 combinedGraph="Data\\Pickle\\Combined_Graph.pickle"
 WALKING_SPEED=5
 
+
+# This Function reduces the float values to 3 decimal places (Rounded down)
 def round_coordinates(coord, precision=3):
     factor = 10 ** precision
     lat = math.floor(coord[0] * factor) / factor
@@ -42,6 +41,7 @@ def haversine(lon1, lat1, lon2, lat2):
 
     return distance
 
+# Reads the pickle files to get the graph, if pickle graph does not exist, it will create a new pickle graph.
 if os.path.exists(combinedGraph):
     with open(combinedGraph, "rb") as f:
         combined_G = pickle.load(f)
@@ -99,12 +99,20 @@ else:
     with open(combinedGraph, "wb") as f:
         pickle.dump(combined_G, f)
 
+
+
+# This Function takes a start string and end string and will put in our A* algorithmn,
+# to get a list of nodes in order. Then these nodes will be converted into [lattitude, longitude],
+# which will then be put into our draw_map function to get our <iframe>.
 def Route(start, end, mode):
+    # Starts the time to calculate how fast our algorithm takes to compute.
     start_time = time.time()
 
     value1 = start
     value2 = end
 
+    # If the start or end node is a Bus Stop which is in a tuple format,
+    # it will just get the node id instead of the whole tuple.
     for nodes in combined_G.nodes():
         if isinstance(nodes,tuple):
             value = nodes[1]
@@ -116,16 +124,9 @@ def Route(start, end, mode):
     print("Start is " + str(start))
     print("End is " + str(end))
 
-    # start=ox.distance.nearest_nodes(buswalk_G, start[1], start[0])
-
-    # end=[1.3152, 103.7652]
-    # end=ox.distance.nearest_nodes(buswalk_G, end[1], end[0])
-
-    # Fast=AStar_Eco.AStar(combined_G,src, des,mode="Fastest")   # Balanced=AStar_Eco.AStar(combined_G,src, des,mode="Balanced")
+    # This will push the nodes to our A* algorithmn to get the path.
     Eco=AStar_Eco.AStar(combined_G,start, end, mode)
-    # print("Fastest",Fast)
-    # print("Balanced",Balanced)
-    # print("Eco",Eco)
+
 
     geolocator = Nominatim(user_agent="ecoroutes_test")
     coordinates = []
@@ -134,7 +135,8 @@ def Route(start, end, mode):
     reduced_coordinates = []
     reduced_mode_list = []
 
-    count = 0
+    # Once the path_list is out, this section here will change the Node Id to,
+    # [latitude, longitude] format.
     for node in Eco[0]:
         node_data = combined_G.nodes[node]
 
@@ -151,8 +153,6 @@ def Route(start, end, mode):
         latitude, longitude, mode = node_data['y'], node_data['x'], node_data['mode']
         location = geolocator.reverse((latitude, longitude), exactly_one=True)
 
-        # Print the location name
-        # print("Location name:", location.address)
         coordinates.append((latitude, longitude))
         mode_list.append(mode)
 
@@ -196,7 +196,8 @@ def Route(start, end, mode):
     print(reduced_coordinates)
     print(reduced_mode_list)
 
-
+    # Calculation of Computing Time.
     end_time = time.time()
     execution_time = end_time - start_time
+    
     return (Eco[1], Eco[2], GUI.draw_map(reduced_coordinates, reduced_mode_list), execution_time)

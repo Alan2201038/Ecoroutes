@@ -1,5 +1,7 @@
 # Ecoroutes
-Insert ECO DRAWING HERE - Alan
+
+![Ecoroutes](/GUI/static/assets/images/eco_icon.jpg)
+
 ## Table of Contents
 
 * [Ecoroutes](#ecoroutes)

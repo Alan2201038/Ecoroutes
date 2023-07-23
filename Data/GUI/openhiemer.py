@@ -5,7 +5,7 @@ def merge_columns_and_add(csv_file_path):
     df = pd.read_csv(csv_file_path, header=None)
 
     # Merge the first two columns into a new column
-    df['Merged_Column'] = df[0].astype(str) + ' ' + df[1].astype(str)
+    df['Merged_Column'] = df[1].astype(str) + ' ' + df[0].astype(str)
 
     # Save the DataFrame back to the CSV file
     df.to_csv(csv_file_path, index=False, header=False)
