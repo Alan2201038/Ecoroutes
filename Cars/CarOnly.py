@@ -3,25 +3,29 @@ import os
 import pickle
 import networkx as nx
 import math
+import time
+
 # Get the absolute path to the parent directory
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # Add the parent directory to the Python path
 sys.path.append(parent_dir)
 
-from GraphFindingAlgos import AStar_Car, Dijkstra
+from GraphFindingAlgos import AStar_Car
 import osmnx as ox
 from geopy.geocoders import Nominatim
 from GUI import Map as GUI
 
 pfile="car_graph.pickle"
 
+# This Function reduces the float values to 3 decimal places (Rounded down)
 def round_coordinates(coord, precision=3):
     factor = 10 ** precision
     lat = math.floor(coord[0] * factor) / factor
     lon = math.floor(coord[1] * factor) / factor
     return lat, lon
 
+# Reads the pickle file to get the graph, if pickle graph does not exist, it will create a new pickle graph.
 if os.path.exists(pfile):
     with open(pfile, "rb") as f:
         graph = pickle.load(f)
@@ -35,10 +39,16 @@ else:
     with open(pfile, "wb") as f:
         pickle.dump(graph, f)
 
+# This Function takes a start string and end string and will put in our A* algorithmn,
+# to get a list of nodes in order. Then these nodes will be converted into [lattitude, longitude],
+# which will then be put into our draw_map function to get our <iframe>.
 def Route(start, end):
+    # Starts the time to calculate how fast our algorithm takes to compute.
+    start_time = time.time()
 
     print(start)
     print(end)
+    
     # Specify the source and target nodes
     node_source = ox.distance.nearest_nodes(graph, start[1], start[0])
     node_target = ox.distance.nearest_nodes(graph, end[1], end[0])
@@ -56,8 +66,6 @@ def Route(start, end):
         latitude, longitude = node_data['y'], node_data['x']
         location = geolocator.reverse((latitude, longitude), exactly_one=True)
 
-        # Print the location name
-        # print("Location name:", location.address)
         coordinates.append((latitude, longitude))
         mode_list.append('Car')
 
@@ -84,12 +92,7 @@ def Route(start, end):
         # Update the previous mode and rounded coordinates
         prev_mode = mode
         prev_rounded_coords = rounded_coords
-        
 
-    # print(ASTAR)
-    # print(reduced_coordinates)
-    # print(reduced_mode_list)
-
-    return (ASTAR[1], ASTAR[2], GUI.draw_map(reduced_coordinates, reduced_mode_list))
-    # asd_path=Dijkstra.dijkstra(graph,node_source,node_target)
-    # print(asd_path)
+    end_time = time.time()
+    execution_time = end_time - start_time
+    return (ASTAR[1], ASTAR[2], GUI.draw_map(reduced_coordinates, reduced_mode_list), execution_time)
