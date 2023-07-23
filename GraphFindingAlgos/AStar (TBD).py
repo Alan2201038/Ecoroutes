@@ -1,4 +1,5 @@
-#comment
+#Template ASTAR ALGORITHM
+#NOT USED IN PRODUCTION
 
 import math
 
