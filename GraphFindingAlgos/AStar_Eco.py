@@ -59,9 +59,8 @@ def AStar(graph,start,end,mode):
   heap.insert((start,0,0))
   while not heap.check_empty():
     current_node = heap.get_root()[0]
-    if current_node==4734791179:
+    if current_node=="HAW PAR VILLA MRT STATION":
       print("ASD")
-
     if current_node == end:  #Reached the target node
       break
     if current_node in visited:
@@ -113,8 +112,9 @@ def AStar(graph,start,end,mode):
       else:
         latitude,longitude=node_values['y'],node_values['x']
 
-      heu = eco_friendliness(edge_weight, edge_transportation, mode=mode)
-      heu2=est_time(longitude, latitude, end_lon, end_lat, edge_transportation)
+      heu2 = est_time(longitude, latitude, end_lon, end_lat, edge_transportation)
+      heu = eco_friendliness(edge_weight+heu2, edge_transportation, mode=mode)
+
       total_value=time_dict[current_node][0]+edge_weight+heu2+heu
       neighbor_value = time_dict[neighbor][2]
       if edge_transportation=="bus":

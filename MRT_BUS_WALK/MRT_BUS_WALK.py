@@ -105,24 +105,25 @@ else:
 
 
 
-test1=(6116490868, '46771', '904')
-test2=4738663075
-test3=7990780990
-
-for neighbor in combined_G.neighbors(test1):
-    if isinstance(neighbor,int):
-        edge_data=combined_G.get_edge_data(test1,neighbor)
-        edge_key = list(edge_data.keys())[-1]
-        edge_weight = edge_data[edge_key]['duration']
-        combined_G.add_edge(neighbor,test1,key=f"walk_{neighbor}_{test1}",duration=edge_weight)
-
+# test1=(6116490868, '46771', '904')
+# test2=4738663075
+# test3=7990780990
+#
+# for neighbor in combined_G.neighbors(test1):
+#     if isinstance(neighbor,int):
+#         edge_data=combined_G.get_edge_data(test1,neighbor)
+#         edge_key = list(edge_data.keys())[-1]
+#         edge_weight = edge_data[edge_key]['duration']
+#         combined_G.add_edge(neighbor,test1,key=f"walk_{neighbor}_{test1}",duration=edge_weight)
+#
 
 
 
 #path = AStar_Eco.AStar(combined_G, (4734791178, '58341', '962B'),"YISHUN MRT STATION", mode="Eco")
-path=AStar_Eco.AStar(combined_G,"YISHUN MRT STATION",(4734791178, '58341', '962B'),mode="Eco")
+path=AStar_Eco.AStar(combined_G,"TELOK BLANGAH MRT STATION","ORCHARD MRT STATION",mode="Eco")
 print(path)
-
+shortest_path=AStar_Eco.AStar(combined_G,"TELOK BLANGAH MRT STATION","ORCHARD MRT STATION",mode="Fastest")
+print(shortest_path)
 
 # Fast=AStar_Eco.AStar(combined_G,src, des,mode="Fastest")
 # Balanced=AStar_Eco.AStar(combined_G,src, des,mode="Balanced")
