@@ -88,9 +88,9 @@ def process():
 
         print(time_taken, carbon_emission, process_time)
 
-        
-    # print(path)
-
+    print("start")
+    print(path)
+    print("end")
     # Return the result back to the HTML page
     return render_template('index.html', path=path, time_taken=time_taken,carbon_emission=carbon_emission, 
                            start_location=start_location, end_location=end_location, process_time=process_time)
