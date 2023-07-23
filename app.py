@@ -27,6 +27,8 @@ def format_string(s):
             for row in reader:
                 if s in row[4]:  # Check if the row is not empty
                     node = str(row[0])
+                    if len(node) < 5:
+                        node = node.zfill(5)
         return "Bus Stop " + s, node
     return s, s
 
@@ -44,7 +46,7 @@ def process():
     end_location, end = format_string(end)
     routing = []
 
-    print(start_location, end_location)
+    print(start_location, end_location + "Test" + start, end)
 
     # Step 5: Call the Python script with the inputs and get the result
     if transport == 'PT':
